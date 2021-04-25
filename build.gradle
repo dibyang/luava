@@ -1,0 +1,59 @@
+
+buildscript {
+  repositories {
+    maven {
+      name "REPO_NEXUS"
+      url "http://${nexus_host}:8081/repository/maven-public/"
+    }
+  }
+  dependencies {
+    classpath 'net.researchgate:gradle-release:2.6.0'
+  }
+}
+
+apply plugin: 'maven'
+apply plugin: 'net.researchgate.release'
+apply plugin: 'java'
+
+release {
+  failOnUnversionedFiles = true
+  failOnCommitNeeded = true
+  failOnPublishNeeded = true
+  failOnSnapshotDependencies = false
+  failOnUpdateNeeded = true
+  revertOnFail = true
+  tagTemplate = 'v${version}'
+  scmAdapters = [
+      net.researchgate.release.GitAdapter
+  ]
+
+  git {
+    requireBranch = 'master'
+    pushToRemote = 'origin'
+    pushToBranchPrefix = ''
+    commitVersionFileOnly = false
+    signTag = false
+  }
+
+}
+
+
+
+group 'com.ls.luava'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+  compile("com.google.guava:guava:28.1-jre")
+  compile("com.google.code.gson:gson:2.8.6")
+  compile("org.apache.commons:commons-lang3:3.9")
+  compile("org.slf4j:slf4j-api:${slf4j_version}")
+  testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
