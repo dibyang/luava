@@ -41,8 +41,19 @@ release {
 
 group 'com.ls.luava'
 
+afterReleaseBuild.dependsOn uploadArchives
+tasks.withType(JavaCompile) {
+  options.encoding = "UTF-8"
+}
+
+
 repositories {
-    mavenCentral()
+  mavenLocal()
+  maven {
+    name "REPO_NEXUS"
+    url "http://${nexus_host}:8081/repository/maven-public/"
+  }
+  mavenCentral()
 }
 
 dependencies {
@@ -56,4 +67,29 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      repository(url: "http://${nexus_host}:8081/repository/maven-releases/") {
+        authentication(userName: project.rootProject.username, password: project.rootProject.password)
+      }
+      snapshotRepository(url: "http://${nexus_host}:8081/repository/maven-snapshots/") {
+        authentication(userName: project.rootProject.username, password: project.rootProject.password)
+      }
+    }
+  }
+}
+
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+  description = 'Build source jar'
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+artifacts {
+  archives jar
+  archives sourcesJar
 }
