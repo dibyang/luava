@@ -11,21 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Types {
-  public static boolean compatibleWithJavaBean = false;
   public static String DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
-  
-  static {
-    try {
-      String prop = System.getProperty("fastjson.compatibleWithJavaBean");
-      if ("true".equals(prop)) {
-        compatibleWithJavaBean = true;
-      } else if ("false".equals(prop)) {
-        compatibleWithJavaBean = false;
-      }
-    } catch (Throwable ex) {
-      // skip
-    }
-  }
 
   public static final String castToString(Object value) {
     if (value == null) {
