@@ -10,7 +10,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class Types {
+public abstract class Types {
   public static String DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
   public static final String castToString(Object value) {
