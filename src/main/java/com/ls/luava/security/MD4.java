@@ -1,5 +1,8 @@
 package com.ls.luava.security;
 
+/**
+ * @since 0.2.0
+ */
 public class MD4 {  
   private int A, B, C, D;  
   private int X[] = new int[16];  

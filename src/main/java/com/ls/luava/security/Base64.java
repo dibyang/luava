@@ -2,6 +2,9 @@ package com.ls.luava.security;
 
 import java.io.*;
 
+/**
+ * @since 0.2.0
+ */
 public class Base64 {
   public static String encode(String str) throws RuntimeException {
 	byte[] bytes = str.getBytes();

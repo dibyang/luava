@@ -2,6 +2,9 @@ package com.ls.luava.security;
 
 import java.security.MessageDigest;
 
+/**
+ * @since 0.2.0
+ */
 public class MD5Util {
 
   public final static String MD5(String s) {

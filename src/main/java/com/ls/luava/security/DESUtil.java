@@ -10,7 +10,7 @@ import java.security.SecureRandom;
 /**
  * DES加密工具
  * @author yangzj
- *
+ * @since 0.2.0
  */
 public class DESUtil {
   private final static String DES = "DES";

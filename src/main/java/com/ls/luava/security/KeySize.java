@@ -5,7 +5,7 @@ package com.ls.luava.security;
  *  1024key->128,2048key->1256,512key->53,11个字节用于保存padding信息。
  *  
  * @author 杨志坚  Email: dib.yang@gmail.com
- *
+ * @since 0.2.0
  */
 public enum KeySize {
 	K512(512,53,64),

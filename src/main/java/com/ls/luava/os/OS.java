@@ -5,7 +5,9 @@ import com.google.common.base.Strings;
 
 public enum OS {
   other(NullProxy.INSTANCE),
-  linux(LinuxProxy.INSTANCE);
+  linux(LinuxProxy.INSTANCE),
+  windows(WindowsProxy.INSTANCE),
+  mac(MacProxy.INSTANCE);
   private final OSProxy proxy;
 
   OS(OSProxy proxy) {
@@ -20,8 +22,12 @@ public enum OS {
     OS os = OS.other;
     if (!Strings.isNullOrEmpty(name)) {
       name = name.toLowerCase();
-      if (name.contains("linux")) {
+      if (name.contains("mac")) {
+        os = OS.mac;
+      } else if (name.contains("linux")) {
         os = OS.linux;
+      } else if (name.contains("windows")) {
+        os = OS.windows;
       } else {
         os = OS.other;
       }

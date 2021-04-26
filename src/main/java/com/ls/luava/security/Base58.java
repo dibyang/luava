@@ -8,7 +8,7 @@ import java.util.UUID;
  * BASE58编码支持
  * 
  * @author 杨志坚 Email: dib.yang@gmail.com
- *
+ * @since 0.2.0
  */
 public class Base58 {
 
