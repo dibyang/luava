@@ -42,10 +42,15 @@ release {
 group 'com.ls.luava'
 
 afterReleaseBuild.dependsOn uploadArchives
+
 tasks.withType(JavaCompile) {
   options.encoding = "UTF-8"
 }
 
+
+java {
+  withSourcesJar()
+}
 
 repositories {
   mavenLocal()
@@ -82,14 +87,3 @@ uploadArchives {
   }
 }
 
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-  description = 'Build source jar'
-  classifier = 'sources'
-  from sourceSets.main.allSource
-}
-
-artifacts {
-  archives jar
-  archives sourcesJar
-}
