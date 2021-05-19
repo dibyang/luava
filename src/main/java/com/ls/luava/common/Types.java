@@ -595,10 +595,14 @@ public abstract class Types {
       if (clazz == Map.class) {
         return (T) obj;
       }
-      if (clazz == N3Map.class) {
-        N3Map m = new N3Map();
-        m.putAll((Map) obj);
-        return (T) m;
+      if (N3Map.class.isAssignableFrom(clazz)) {
+        try {
+          N3Map m = (N3Map)clazz.newInstance();
+          m.putAll((Map) obj);
+          return (T) m;
+        } catch (InstantiationException|IllegalAccessException  e) {
+          throw new IllegalArgumentException("clazz newInstance fail.",e);
+        }
       }
       if (clazz.equals(Object.class)) {
         return (T) obj;
@@ -824,6 +828,5 @@ public abstract class Types {
 
     throw new CastException(type, obj);
   }
-
 
 }

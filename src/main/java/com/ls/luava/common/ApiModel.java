@@ -10,7 +10,7 @@ public class ApiModel extends N3Map {
   public static final long serialVersionUID = 1L;
   public static final String ERROR = "error";
   public static final String ERROR_MESSAGE = "error_message";
-  public static final String DATA = "com/ls/luava/data";
+  public static final String DATA = "data";
 
 
   public ApiModel() {
