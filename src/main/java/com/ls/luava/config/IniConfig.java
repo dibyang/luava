@@ -30,12 +30,20 @@ public class IniConfig extends IniEditor {
     return lastModified != dataFile.getFile().lastModified();
   }
 
+  public void loadIfModified() {
+    if(isModified()) {
+      load();
+    }
+  }
+
   public void load() {
     try {
-      this.clear();
-      ByteArrayInputStream bis = new ByteArrayInputStream(dataFile.readAllBytes());
-      this.load(bis);
-      this.lastModified = dataFile.getFile().lastModified();
+      if(dataFile.getFile().exists()) {
+        this.clear();
+        ByteArrayInputStream bis = new ByteArrayInputStream(dataFile.readAllBytes());
+        this.load(bis);
+        this.lastModified = dataFile.getFile().lastModified();
+      }
     } catch (IOException e) {
       LOG.error(null, e);
     }
