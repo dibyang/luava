@@ -76,6 +76,14 @@ public class PropertiesConfig {
     return map.getValues(clazz, keys);
   }
 
+  public List<String> getStrings(String... keys){
+    return map.getValues(String.class, keys);
+  }
+
+  public Optional<String> getString(String... keys){
+    return getValue(String.class,keys);
+  }
+
   public Optional<Integer> getInt(String... keys){
     return getValue(Integer.class,keys);
   }

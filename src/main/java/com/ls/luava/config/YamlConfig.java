@@ -1,6 +1,5 @@
 package com.ls.luava.config;
 
-import com.google.common.collect.Lists;
 import com.ls.luava.common.DataFile;
 import com.ls.luava.common.N3Map;
 import org.slf4j.Logger;
@@ -9,8 +8,6 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
-import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.representer.Representer;
 import org.yaml.snakeyaml.representer.Representer2;
 
 import java.io.File;
@@ -28,7 +25,7 @@ public class YamlConfig  {
   final DataFile dataFile;
   private long lastModified = 0;
   private final Yaml yaml;
-  private final N3Map config = new N3Map();
+  private final N3Map map = new N3Map();
 
   public long getLastModified() {
     return lastModified;
@@ -65,7 +62,7 @@ public class YamlConfig  {
         String s = new String(dataFile.readAllBytes(), StandardCharsets.UTF_8);
         clear();
         Map map = yaml.load(s);
-        config.putAll(map);
+        this.map.putAll(map);
         this.lastModified = dataFile.getFile().lastModified();
       }
     } catch (IOException e) {
@@ -74,15 +71,23 @@ public class YamlConfig  {
   }
 
   public void clear() {
-    config.clear();
+    map.clear();
   }
 
   public <T> Optional<T> getValue(Class<T> clazz, String... keys){
-    return config.getValue(clazz, keys);
+    return map.getValue(clazz, keys);
   }
 
   public <T> List<T> getValues(Class<T> clazz, String... keys){
-    return config.getValues(clazz, keys);
+    return map.getValues(clazz, keys);
+  }
+
+  public List<String> getStrings(String... keys){
+    return map.getValues(String.class, keys);
+  }
+
+  public Optional<String> getString(String... keys){
+    return getValue(String.class,keys);
   }
 
   public Optional<Integer> getInt(String... keys){
@@ -102,16 +107,16 @@ public class YamlConfig  {
   }
 
   public void setValue(String key, Object value){
-    config.put(key, value);
+    map.put(key, value);
   }
 
   public Object remove(String key){
-    return config.remove(key);
+    return map.remove(key);
   }
 
   public void store() {
     try {
-      String s = yaml.dump(config);
+      String s = yaml.dump(map);
       dataFile.write(s.getBytes(StandardCharsets.UTF_8));
     } catch (IOException e) {
       LOG.error(null, e);
