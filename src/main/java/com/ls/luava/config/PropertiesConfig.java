@@ -1,33 +1,27 @@
 package com.ls.luava.config;
 
-import com.google.common.collect.Lists;
 import com.ls.luava.common.DataFile;
 import com.ls.luava.common.N3Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.introspector.BeanAccess;
-import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.representer.Representer;
-import org.yaml.snakeyaml.representer.Representer2;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 
 /**
  * @author yangzj
  */
-public class YamlConfig  {
-  final static Logger LOG = LoggerFactory.getLogger(YamlConfig.class);
+public class PropertiesConfig {
+  final static Logger LOG = LoggerFactory.getLogger(PropertiesConfig.class);
   final DataFile dataFile;
   private long lastModified = 0;
-  private final Yaml yaml;
   private final N3Map config = new N3Map();
 
   public long getLastModified() {
@@ -38,15 +32,9 @@ public class YamlConfig  {
     this.lastModified = lastModified;
   }
 
-  public YamlConfig(String path) {
+  public PropertiesConfig(String path) {
     this.dataFile = DataFile.of(new File(path));
-    DumperOptions dumperOptions = new DumperOptions();
-    dumperOptions.setAllowReadOnlyProperties(true);
-    Representer2 representer = new Representer2(dumperOptions);
-    representer.getPropertyUtils().setSkipMissingProperties(true);
 
-    yaml = new Yaml(new Constructor(),representer,dumperOptions);
-    yaml.setBeanAccess(BeanAccess.FIELD);
   }
 
   public boolean isModified() {
@@ -62,10 +50,13 @@ public class YamlConfig  {
   public void load() {
     try {
       if(dataFile.getFile().exists()) {
-        String s = new String(dataFile.readAllBytes(), StandardCharsets.UTF_8);
         clear();
-        Map map = yaml.load(s);
-        config.putAll(map);
+        ByteArrayInputStream bis = new ByteArrayInputStream(dataFile.readAllBytes());
+        Properties properties = new Properties();
+        properties.load(bis);
+        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+          config.put(entry.getKey().toString(),entry.getValue());
+        }
         this.lastModified = dataFile.getFile().lastModified();
       }
     } catch (IOException e) {
@@ -111,8 +102,11 @@ public class YamlConfig  {
 
   public void store() {
     try {
-      String s = yaml.dump(config);
-      dataFile.write(s.getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      Properties properties = new Properties();
+      properties.putAll(config);
+      properties.store(bos,"");
+      dataFile.write(bos.toByteArray());
     } catch (IOException e) {
       LOG.error(null, e);
     }
