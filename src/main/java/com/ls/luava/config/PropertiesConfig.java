@@ -9,11 +9,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 
 /**
  * @author yangzj
@@ -22,7 +21,8 @@ public class PropertiesConfig {
   final static Logger LOG = LoggerFactory.getLogger(PropertiesConfig.class);
   final DataFile dataFile;
   private long lastModified = 0;
-  private final N3Map config = new N3Map();
+  private final SafeProperties properties = new SafeProperties();
+  private final N3Map map = new N3Map();
 
   public long getLastModified() {
     return lastModified;
@@ -34,7 +34,7 @@ public class PropertiesConfig {
 
   public PropertiesConfig(String path) {
     this.dataFile = DataFile.of(new File(path));
-
+    loadIfModified();
   }
 
   public boolean isModified() {
@@ -52,10 +52,9 @@ public class PropertiesConfig {
       if(dataFile.getFile().exists()) {
         clear();
         ByteArrayInputStream bis = new ByteArrayInputStream(dataFile.readAllBytes());
-        Properties properties = new Properties();
         properties.load(bis);
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
-          config.put(entry.getKey().toString(),entry.getValue());
+          map.put(entry.getKey().toString(),entry.getValue());
         }
         this.lastModified = dataFile.getFile().lastModified();
       }
@@ -65,15 +64,16 @@ public class PropertiesConfig {
   }
 
   public void clear() {
-    config.clear();
+    properties.clear();
+    map.clear();
   }
 
   public <T> Optional<T> getValue(Class<T> clazz, String... keys){
-    return config.getValue(clazz, keys);
+    return map.getValue(clazz, keys);
   }
 
   public <T> List<T> getValues(Class<T> clazz, String... keys){
-    return config.getValues(clazz, keys);
+    return map.getValues(clazz, keys);
   }
 
   public Optional<Integer> getInt(String... keys){
@@ -93,23 +93,31 @@ public class PropertiesConfig {
   }
 
   public void setValue(String key, Object value){
-    config.put(key, value);
+    map.put(key, value);
   }
 
   public Object remove(String key){
-    return config.remove(key);
+    return map.remove(key);
   }
 
   public void store() {
     try {
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      Properties properties = new Properties();
-      properties.putAll(config);
-      properties.store(bos,"");
+      properties.putAll(map);
+      properties.store(bos,null);
       dataFile.write(bos.toByteArray());
     } catch (IOException e) {
       LOG.error(null, e);
     }
+  }
+
+  public static void main(String[] args) {
+    PropertiesConfig config = new PropertiesConfig("/etc/client.conf");
+    config.setValue("client.user","client1");
+    config.setValue("client.pwd","123456");
+    config.setValue("client.port",6688);
+    config.store();
+    System.out.println("config.map = " + config.map);
   }
 
 }
