@@ -758,6 +758,10 @@ public abstract class Types {
         return null;
       }
 
+      if (value instanceof UUID) {
+        return (UUID)value;
+      }
+
       if (value instanceof String) {
         String name = (String) value;
         if (name.length() == 0) {

@@ -23,4 +23,11 @@ public abstract class Types2 {
     return cast(value,targetClass,null);
   }
 
+  public static void main(String[] args) {
+    UUID uid = UUID.randomUUID();
+    System.out.println("uid = " + uid);
+    final UUID uuid = Types.cast(uid, UUID.class);
+    System.out.println("uuid = " + uuid);
+    System.out.println("uuid.equals(uid) = " + uuid.equals(uid));
+  }
 }
