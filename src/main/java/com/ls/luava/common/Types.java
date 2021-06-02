@@ -674,6 +674,11 @@ public abstract class Types {
       return (T) castToBigInteger(obj);
     }
 
+
+    if(clazz == UUID.class){
+      return (T) castToUUID(obj);
+    }
+
     if (clazz == Date.class) {
       return (T) castToDate(obj);
     }
@@ -745,6 +750,30 @@ public abstract class Types {
     }
 
     throw new CastException(clazz, obj);
+  }
+
+  public static final UUID castToUUID(Object value) {
+    try {
+      if (value == null) {
+        return null;
+      }
+
+      if (value instanceof String) {
+        String name = (String) value;
+        if (name.length() == 0) {
+          return null;
+        }
+        return UUID.fromString(name);
+      }
+
+      if (value instanceof byte[]) {
+        byte[] name = (byte[]) value;
+        return UUID.nameUUIDFromBytes(name);
+      }
+    } catch (Exception ex) {
+      throw new CastException(ex, UUID.class, value);
+    }
+    throw new CastException(UUID.class, value);
   }
 
   @SuppressWarnings("unchecked")
