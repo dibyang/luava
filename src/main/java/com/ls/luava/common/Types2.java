@@ -1,5 +1,7 @@
 package com.ls.luava.common;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,8 +28,18 @@ public abstract class Types2 {
   public static void main(String[] args) {
     UUID uid = UUID.randomUUID();
     System.out.println("uid = " + uid);
-    final UUID uuid = Types.cast(uid, UUID.class);
+    int id = 12345;
+
+    N3Map map = new N3Map();
+    map.put("tid",uid);
+    map.put("id",id);
+    String s = Jsons.i.toJson(map);
+    System.out.println("s = " + s);
+    N3Map map2 = Jsons.i.fromJson(s,N3Map.class);
+    System.out.println("map2 = " + map2);
+    final UUID uuid = map2.getUUID("tid").orElse(null);
     System.out.println("uuid = " + uuid);
-    System.out.println("uuid.equals(uid) = " + uuid.equals(uid));
+    System.out.println("uid.equals(uuid) = " + uid.equals(uuid));
+
   }
 }
