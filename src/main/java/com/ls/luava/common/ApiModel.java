@@ -29,6 +29,10 @@ public class ApiModel extends N3Map {
     }
   }
 
+  public void setError(Throwable t){
+    this.setErr(t);
+  }
+
   public void setError(N2Error err){
     this.setErr(err.getCode(),err.getMessage());
   }
