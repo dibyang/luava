@@ -5,12 +5,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
+import com.ls.luava.spi.GsonSpi;
 
 import java.io.Reader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * Json 工具类
@@ -27,6 +30,11 @@ public enum Jsons {
       //.setDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
       //.registerTypeAdapter(N3Map.class,new N3MapDeserializer())
       .setPrettyPrinting();
+    ServiceLoader<GsonSpi> serviceLoader = ServiceLoader.load(GsonSpi.class);
+    Iterator<GsonSpi> sels = serviceLoader.iterator();
+    while (sels.hasNext()) {
+      sels.next().build(builder);
+    }
     gson = builder.create();
     try {
       Field factories = Gson.class.getDeclaredField("factories");
