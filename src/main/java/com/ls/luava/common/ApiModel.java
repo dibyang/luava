@@ -21,21 +21,26 @@ public class ApiModel extends N3Map {
   }
 
   public void setErr(Throwable t) {
-    if(t!=null) {
-      this.put(ERROR, t.getClass().getSimpleName());
+    if (t != null) {
+      if (t instanceof N2Exception) {
+        this.put(ERROR, ((N2Exception) t).getError());
+      } else {
+        this.put(ERROR, t.getClass().getSimpleName());
+      }
       this.put(ERROR_MESSAGE, t.getMessage());
-    }else{
+    } else {
       cleanError();
     }
   }
 
-  public void setError(Throwable t){
+  public void setError(Throwable t) {
     this.setErr(t);
   }
 
-  public void setError(N2Error err){
-    this.setErr(err.getCode(),err.getMessage());
+  public void setError(N2Error err) {
+    this.setErr(err.getCode(), err.getMessage());
   }
+
   public void setErr(String code) {
     this.put(ERROR, code);
   }
@@ -74,11 +79,11 @@ public class ApiModel extends N3Map {
     return getValue(tClass, DATA).orElse(null);
   }
 
-  public static ApiModel c(){
+  public static ApiModel c() {
     return new ApiModel();
   }
 
-  public static ApiModel of(Map<String,Object> map){
+  public static ApiModel of(Map<String, Object> map) {
     ApiModel model = new ApiModel();
     model.putAll(map);
     return model;
