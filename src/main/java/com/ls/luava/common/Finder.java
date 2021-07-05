@@ -56,23 +56,42 @@ public class Finder {
   }
 
   public Finder find(String beginMark, IndexFunction end){
-    return find(IndexBeginMark.c(beginMark),end);
+    return find(beginMark,end,null);
+  }
+
+  public Finder find(String beginMark, IndexFunction end, Function<Finder,Finder> orElse){
+    return find(IndexBeginMark.c(beginMark),end, orElse);
   }
 
   public Finder find(IndexFunction begin, String endMark){
-    return find(begin, IndexEndMark.c(endMark));
+    return find(begin, IndexEndMark.c(endMark), null);
+  }
+
+  public Finder find(IndexFunction begin, String endMark,Function<Finder,Finder> orElse){
+    return find(begin, IndexEndMark.c(endMark), orElse);
   }
 
   public Finder find(String beginMark, String endMark){
-    return find(IndexBeginMark.c(beginMark), IndexEndMark.c(endMark));
+    return find(IndexBeginMark.c(beginMark), IndexEndMark.c(endMark), null);
+  }
+
+  public Finder find(String beginMark, String endMark, Function<Finder,Finder> orElse){
+    return find(IndexBeginMark.c(beginMark), IndexEndMark.c(endMark), orElse);
   }
 
   public Finder find(IndexFunction begin, IndexFunction end){
+    return find(begin,end,null);
+  }
+
+  public Finder find(IndexFunction begin, IndexFunction end, Function<Finder,Finder> orElse){
     if(value!=null) {
       int beginIndex = begin.index(last, value, 0);
       int endIndex = end.index(last, value, beginIndex);
       if (beginIndex >= 0 && endIndex >= beginIndex) {
         return c(value.substring(beginIndex, endIndex)).setParent(this);
+      }
+      if(orElse!=null){
+        return orElse.apply(this);
       }
     }
     return NULL;
@@ -100,6 +119,30 @@ public class Finder {
 
   public Finder tail(IndexFunction begin){
     return find(begin, IndexEndMark::tail);
+  }
+
+  public Finder head(String endMark, int skip, Function<Finder,Finder> orElse){
+    return head(IndexEndMark.c(endMark,skip),orElse);
+  }
+
+  public Finder head(String endMark, Function<Finder,Finder> orElse){
+    return head(IndexEndMark.c(endMark),orElse);
+  }
+
+  public Finder head(IndexFunction end, Function<Finder,Finder> orElse){
+    return find(IndexBeginMark::head,end,orElse);
+  }
+
+  public Finder tail(String beginMark, int skip, Function<Finder,Finder> orElse){
+    return tail(IndexBeginMark.c(beginMark,skip),orElse);
+  }
+
+  public Finder tail(String beginMark, Function<Finder,Finder> orElse){
+    return tail(IndexBeginMark.c(beginMark),orElse);
+  }
+
+  public Finder tail(IndexFunction begin, Function<Finder,Finder> orElse){
+    return find(begin, IndexEndMark::tail,orElse);
   }
 
   public <T> Optional<T> getNullableValue(Class<T> clazz)
@@ -153,8 +196,8 @@ public class Finder {
     System.out.println(finder3.head("=").getValue());
     String route1 = "default via 13.13.13.253 dev br0 proto static";
     String route2 = "default via 13.13.13.253 dev br0 ";
-    String dev1 = Finder.c(route1).tail("dev ").head(" ").nullToParent().getValue().trim();
-    String dev2 = Finder.c(route2).tail("dev ").head(" ").nullToParent().getValue().trim();
+    String dev1 = Finder.c(route1).tail("dev ").head(" ",f->f).getValue().trim();
+    String dev2 = Finder.c(route2).tail("dev ").head(" ",f->f).getValue().trim();
     System.out.println("dev1 =" + dev1+ " dev2 =" + dev2);
   }
 }
