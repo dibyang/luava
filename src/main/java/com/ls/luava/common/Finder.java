@@ -2,6 +2,7 @@ package com.ls.luava.common;
 
 
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Finder
@@ -12,6 +13,7 @@ import java.util.Optional;
 public class Finder {
   public static final Finder NULL = c(null);
   private final String value;
+  private volatile Finder parent = null;
   private volatile boolean last = false;
 
   public Finder(String value,boolean last) {
@@ -30,6 +32,18 @@ public class Finder {
 
   public Finder before(){
     last = false;
+    return this;
+  }
+
+  public Finder setParent(Finder parent) {
+    this.parent = parent;
+    return this;
+  }
+
+  public Finder nullToParent() {
+    if(isNull()){
+      return parent;
+    }
     return this;
   }
 
@@ -58,7 +72,7 @@ public class Finder {
       int beginIndex = begin.index(last, value, 0);
       int endIndex = end.index(last, value, beginIndex);
       if (beginIndex >= 0 && endIndex >= beginIndex) {
-        return c(value.substring(beginIndex, endIndex));
+        return c(value.substring(beginIndex, endIndex)).setParent(this);
       }
     }
     return NULL;
@@ -91,6 +105,11 @@ public class Finder {
   public <T> Optional<T> getNullableValue(Class<T> clazz)
   {
     return Optional.ofNullable(getValue(clazz));
+  }
+
+  public Optional<String> getNullableValue()
+  {
+    return Optional.ofNullable(getValue());
   }
 
   public <T> T getValue(Class<T> clazz)
@@ -132,6 +151,10 @@ public class Finder {
     System.out.println("s24 = " + s24);
     Finder finder3 = Finder.c("#IPADDR=");
     System.out.println(finder3.head("=").getValue());
-
+    String route1 = "default via 13.13.13.253 dev br0 proto static";
+    String route2 = "default via 13.13.13.253 dev br0 ";
+    String dev1 = Finder.c(route1).tail("dev ").head(" ").nullToParent().getValue().trim();
+    String dev2 = Finder.c(route2).tail("dev ").head(" ").nullToParent().getValue().trim();
+    System.out.println("dev1 =" + dev1+ " dev2 =" + dev2);
   }
 }

@@ -17,7 +17,9 @@ class IndexBeginMark implements IndexFunction {
 
   @Override
   public int index(boolean last, String value, Integer fromIndex) {
-    if (fromIndex == null) fromIndex = 0;
+    if (fromIndex == null) {
+      fromIndex = 0;
+    }
     if(last){
       int lastIndex = value.length();
       for(int i=0;i<=skip;i++){
