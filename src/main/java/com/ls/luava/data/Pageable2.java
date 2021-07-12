@@ -23,19 +23,19 @@ import java.util.Optional;
  *
  * @author Oliver Gierke
  */
-public interface Pageable {
+public interface Pageable2 {
 
 	/**
-	 * Returns a {@link Pageable} instance representing no pagination setup.
+	 * Returns a {@link Pageable2} instance representing no pagination setup.
 	 *
 	 * @return
 	 */
-	static Pageable unpaged() {
+	static Pageable2 unpaged() {
 		return Unpaged.INSTANCE;
 	}
 
 	/**
-	 * Returns whether the current {@link Pageable} contains pagination information.
+	 * Returns whether the current {@link Pageable2} contains pagination information.
 	 *
 	 * @return
 	 */
@@ -44,7 +44,7 @@ public interface Pageable {
 	}
 
 	/**
-	 * Returns whether the current {@link Pageable} does not contain pagination information.
+	 * Returns whether the current {@link Pageable2} does not contain pagination information.
 	 *
 	 * @return
 	 */
@@ -75,29 +75,29 @@ public interface Pageable {
 
 
 	/**
-	 * Returns the {@link Pageable} requesting the next {@link Page}.
+	 * Returns the {@link Pageable2} requesting the next {@link Page2}.
 	 *
 	 * @return
 	 */
-	Pageable next();
+	Pageable2 next();
 
 	/**
-	 * Returns the previous {@link Pageable} or the first {@link Pageable} if the current one already is the first one.
+	 * Returns the previous {@link Pageable2} or the first {@link Pageable2} if the current one already is the first one.
 	 *
 	 * @return
 	 */
-	Pageable previousOrFirst();
+	Pageable2 previousOrFirst();
 
 	/**
-	 * Returns the {@link Pageable} requesting the first page.
+	 * Returns the {@link Pageable2} requesting the first page.
 	 *
 	 * @return
 	 */
-	Pageable first();
+	Pageable2 first();
 
 	/**
-	 * Returns whether there's a previous {@link Pageable} we can access from the current one. Will return
-	 * {@literal false} in case the current {@link Pageable} already refers to the first page.
+	 * Returns whether there's a previous {@link Pageable2} we can access from the current one. Will return
+	 * {@literal false} in case the current {@link Pageable2} already refers to the first page.
 	 *
 	 * @return
 	 */
@@ -108,7 +108,7 @@ public interface Pageable {
 	 *
 	 * @return
 	 */
-	default Optional<Pageable> toOptional() {
+	default Optional<Pageable2> toOptional() {
 		return isUnpaged() ? Optional.empty() : Optional.of(this);
 	}
 }

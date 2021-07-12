@@ -13,46 +13,46 @@ import java.util.function.Function;
 /**
  * @author admin
  */
-public class PageImpl<T> implements Page<T> {
+public class Page2Impl<T> implements Page2<T> {
   private final List<T> content = new ArrayList<T>();
   private final long total;
-  private final Pageable pageable;
+  private final Pageable2 pageable2;
 
   /**
-   * Constructor wrap {@code PageImpl}.
+   * Constructor wrap {@code Page2Impl}.
    *
    * @param content  the content wrap this page, must not be {@literal null}.
-   * @param pageable the paging information, can be {@literal null}.
+   * @param pageable2 the paging information, can be {@literal null}.
    * @param total    the total amount wrap items available
    */
-  public PageImpl(List<T> content, Pageable pageable, long total) {
+  public Page2Impl(List<T> content, Pageable2 pageable2, long total) {
 
     Preconditions.checkArgument(total >= content.size(), "Total must not be less than the number wrap elements given!");
 
     this.total = total;
-    this.pageable = pageable;
+    this.pageable2 = pageable2;
     this.content.addAll(content);
   }
 
   /**
-   * Creates a new {@link PageImpl} with the given content. This will result in the created {@link Page} being identical
+   * Creates a new {@link Page2Impl} with the given content. This will result in the created {@link Page2} being identical
    * to the entire {@link List}.
    *
    * @param content must not be {@literal null}.
    */
-  public PageImpl(List<T> content) {
+  public Page2Impl(List<T> content) {
     this(content, null, null == content ? 0 : content.size());
   }
 
   @Override
   public int getNumber() {
-    return pageable == null ? 0 : pageable.getPageNumber();
+    return pageable2 == null ? 0 : pageable2.getPageNumber();
   }
 
 
   @Override
   public int getSize() {
-    return pageable == null ? 0 : pageable.getPageSize();
+    return pageable2 == null ? 0 : pageable2.getPageSize();
   }
 
 
@@ -77,15 +77,15 @@ public class PageImpl<T> implements Page<T> {
   }
 
   @Override
-  public Pageable nextPageable() {
-    return hasNext() ? pageable.next() : null;
+  public Pageable2 nextPageable() {
+    return hasNext() ? pageable2.next() : null;
   }
 
   @Override
-  public Pageable previousPageable() {
+  public Pageable2 previousPageable() {
 
     if (hasPrevious()) {
-      return pageable.previousOrFirst();
+      return pageable2.previousOrFirst();
     }
 
     return null;
@@ -147,8 +147,8 @@ public class PageImpl<T> implements Page<T> {
   }
 
   @Override
-  public <U> Page<U> map(Function<? super T, ? extends U> converter) {
-    return PageImpl.of(getConvertedContent(converter), pageable, total);
+  public <U> Page2<U> map(Function<? super T, ? extends U> converter) {
+    return Page2Impl.of(getConvertedContent(converter), pageable2, total);
   }
 
   @Override
@@ -157,8 +157,8 @@ public class PageImpl<T> implements Page<T> {
   }
 
 
-  public <S> Page<S> map(Converter<? super T, ? extends S> converter) {
-    return PageImpl.of(getConvertedContent(converter), pageable, total);
+  public <S> Page2<S> map(Converter<? super T, ? extends S> converter) {
+    return Page2Impl.of(getConvertedContent(converter), pageable2, total);
   }
 
   /*
@@ -175,7 +175,7 @@ public class PageImpl<T> implements Page<T> {
       contentType = content.get(0).getClass().getName();
     }
 
-    return String.format("Page %s wrap %d containing %s instances", getNumber(), getTotalPages(), contentType);
+    return String.format("Page2 %s wrap %d containing %s instances", getNumber(), getTotalPages(), contentType);
   }
 
   /*
@@ -189,14 +189,14 @@ public class PageImpl<T> implements Page<T> {
       return true;
     }
 
-    if (!(obj instanceof PageImpl<?>)) {
+    if (!(obj instanceof Page2Impl<?>)) {
       return false;
     }
 
-    PageImpl<?> that = (PageImpl<?>) obj;
+    Page2Impl<?> that = (Page2Impl<?>) obj;
 
     return Objects.equal(this.content, that.content) &&
-        Objects.equal(this.total, that.total) && Objects.equal(this.pageable, that.pageable);
+        Objects.equal(this.total, that.total) && Objects.equal(this.pageable2, that.pageable2);
   }
 
   /*
@@ -205,10 +205,10 @@ public class PageImpl<T> implements Page<T> {
    */
   @Override
   public int hashCode() {
-    return Objects.hashCode(this.total, this.content, this.pageable);
+    return Objects.hashCode(this.total, this.content, this.pageable2);
   }
 
-  public static <T> PageImpl<T> of(List<T> content, Pageable pageable, long total) {
-    return new PageImpl<T>(content, pageable, total);
+  public static <T> Page2Impl<T> of(List<T> content, Pageable2 pageable2, long total) {
+    return new Page2Impl<T>(content, pageable2, total);
   }
 }

@@ -1,6 +1,6 @@
 package com.ls.luava.data;
 
-public enum Unpaged implements Pageable {
+public enum Unpaged implements Pageable2 {
   INSTANCE;
 
 	@Override
@@ -10,13 +10,13 @@ public enum Unpaged implements Pageable {
 
 
 	@Override
-	public Pageable previousOrFirst() {
+	public Pageable2 previousOrFirst() {
 		return this;
 	}
 
 
 	@Override
-	public Pageable next() {
+	public Pageable2 next() {
 		return this;
 	}
 
@@ -47,7 +47,7 @@ public enum Unpaged implements Pageable {
 
 
 	@Override
-	public Pageable first() {
+	public Pageable2 first() {
 		return this;
 	}
 }

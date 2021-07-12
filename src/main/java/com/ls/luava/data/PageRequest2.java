@@ -1,52 +1,52 @@
 package com.ls.luava.data;
 
-public class PageRequest extends AbstractPageRequest {
+public class PageRequest2 extends AbstractPageRequest2 {
 
 	private static final long serialVersionUID = -4541509938956089562L;
 
 
-	protected PageRequest(int page, int size) {
+	protected PageRequest2(int page, int size) {
 
 		super(page, size);
 
 	}
 
 	/**
-	 * Creates a new unsorted {@link PageRequest}.
+	 * Creates a new unsorted {@link PageRequest2}.
 	 *
 	 * @param page zero-based page index, must not be negative.
 	 * @param size the size of the page to be returned, must be greater than 0.
 	 * @since 2.0
 	 */
-	public static PageRequest of(int page, int size) {
+	public static PageRequest2 of(int page, int size) {
 		return of(page, size);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see Pageable#next()
+	 * @see Pageable2#next()
 	 */
 	@Override
-	public Pageable next() {
-		return new PageRequest(getPageNumber() + 1, getPageSize());
+	public Pageable2 next() {
+		return new PageRequest2(getPageNumber() + 1, getPageSize());
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see AbstractPageRequest#previous()
+	 * @see AbstractPageRequest2#previous()
 	 */
 	@Override
-	public PageRequest previous() {
-		return getPageNumber() == 0 ? this : new PageRequest(getPageNumber() - 1, getPageSize());
+	public PageRequest2 previous() {
+		return getPageNumber() == 0 ? this : new PageRequest2(getPageNumber() - 1, getPageSize());
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see Pageable#first()
+	 * @see Pageable2#first()
 	 */
 	@Override
-	public Pageable first() {
-		return new PageRequest(0, getPageSize());
+	public Pageable2 first() {
+		return new PageRequest2(0, getPageSize());
 	}
 
 	/*
@@ -60,11 +60,11 @@ public class PageRequest extends AbstractPageRequest {
 			return true;
 		}
 
-		if (!(obj instanceof PageRequest)) {
+		if (!(obj instanceof PageRequest2)) {
 			return false;
 		}
 
-		PageRequest that = (PageRequest) obj;
+		PageRequest2 that = (PageRequest2) obj;
 
 		return super.equals(that) ;
 	}
@@ -76,6 +76,6 @@ public class PageRequest extends AbstractPageRequest {
 
 	@Override
 	public String toString() {
-		return String.format("Page request [number: %d, size %d]", getPageNumber(), getPageSize());
+		return String.format("Page2 request [number: %d, size %d]", getPageNumber(), getPageSize());
 	}
 }

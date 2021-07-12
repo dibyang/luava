@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @author yangzj
  *
  */
-public abstract class AbstractPageRequest implements Pageable, Serializable {
+public abstract class AbstractPageRequest2 implements Pageable2, Serializable {
 
 	private static final long serialVersionUID = 1232825578694716871L;
 
@@ -15,20 +15,20 @@ public abstract class AbstractPageRequest implements Pageable, Serializable {
 	private final int size;
 
 	/**
-	 * Creates a new {@link AbstractPageRequest}. Pages are zero indexed, thus providing 0 for {@code page} will return
+	 * Creates a new {@link AbstractPageRequest2}. Pages are zero indexed, thus providing 0 for {@code page} will return
 	 * the first page.
 	 *
 	 * @param page must not be less than zero.
 	 * @param size must not be less than one.
 	 */
-	public AbstractPageRequest(int page, int size) {
+	public AbstractPageRequest2(int page, int size) {
 
 		if (page < 0) {
-			throw new IllegalArgumentException("Page index must not be less than zero!");
+			throw new IllegalArgumentException("Page2 index must not be less than zero!");
 		}
 
 		if (size < 1) {
-			throw new IllegalArgumentException("Page size must not be less than one!");
+			throw new IllegalArgumentException("Page2 size must not be less than one!");
 		}
 
 		this.page = page;
@@ -56,22 +56,22 @@ public abstract class AbstractPageRequest implements Pageable, Serializable {
 	}
 
 	@Override
-  public Pageable previousOrFirst() {
+  public Pageable2 previousOrFirst() {
 		return hasPrevious() ? previous() : first();
 	}
 
 	@Override
-  public abstract Pageable next();
+  public abstract Pageable2 next();
 
 	/**
-	 * Returns the {@link Pageable} requesting the previous {@link Page}.
+	 * Returns the {@link Pageable2} requesting the previous {@link Page2}.
 	 *
 	 * @return
 	 */
-	public abstract Pageable previous();
+	public abstract Pageable2 previous();
 
 	@Override
-  public abstract Pageable first();
+  public abstract Pageable2 first();
 
 	@Override
 	public int hashCode() {
@@ -96,7 +96,7 @@ public abstract class AbstractPageRequest implements Pageable, Serializable {
 			return false;
 		}
 
-		AbstractPageRequest other = (AbstractPageRequest) obj;
+		AbstractPageRequest2 other = (AbstractPageRequest2) obj;
 		return this.page == other.page && this.size == other.size;
 	}
 }

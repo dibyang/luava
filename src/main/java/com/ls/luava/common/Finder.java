@@ -11,9 +11,10 @@ import java.util.function.Function;
  * @version 1.0
  */
 public class Finder {
+  public static Function<Finder,Finder> nullToParent = f->f;
+
   public static final Finder NULL = c(null);
   private final String value;
-  private volatile Finder parent = null;
   private volatile boolean last = false;
 
   public Finder(String value,boolean last) {
@@ -32,18 +33,6 @@ public class Finder {
 
   public Finder before(){
     last = false;
-    return this;
-  }
-
-  public Finder setParent(Finder parent) {
-    this.parent = parent;
-    return this;
-  }
-
-  public Finder nullToParent() {
-    if(isNull()){
-      return parent;
-    }
     return this;
   }
 
@@ -88,7 +77,7 @@ public class Finder {
       int beginIndex = begin.index(last, value, 0);
       int endIndex = end.index(last, value, beginIndex);
       if (beginIndex >= 0 && endIndex >= beginIndex) {
-        return c(value.substring(beginIndex, endIndex)).setParent(this);
+        return c(value.substring(beginIndex, endIndex));
       }
       if(orElse!=null){
         return orElse.apply(this);
@@ -167,6 +156,8 @@ public class Finder {
   public static  Finder c(String value, boolean last){
     return new Finder(value,last);
   }
+
+
 
   public static void main(String[] args) {
     String s="user2:$6$/5C7Cg06$sMjvN8/dPSCgdng32oeJ8TqsQmkgxGeqA7qHX3Eurw0EN6lam7GSVcP8M9TM0/t80WiV9jDDRHltpuEY.CfMM/:18522:0:99999:7:::";
