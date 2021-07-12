@@ -19,7 +19,7 @@ public class PageRequest2 extends AbstractPageRequest2 {
 	 * @since 2.0
 	 */
 	public static PageRequest2 of(int page, int size) {
-		return of(page, size);
+		return new PageRequest2(page, size);
 	}
 
 	/*
