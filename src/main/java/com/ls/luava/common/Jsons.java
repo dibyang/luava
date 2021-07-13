@@ -27,6 +27,8 @@ public enum Jsons {
   Jsons() {
     GsonBuilder builder = new GsonBuilder();
     builder
+      .registerTypeAdapter(Unit.class,UnitTypeAdapter.UNIT)
+      .registerTypeAdapter(Size.class,SizeTypeAdapter.SIZE)
       //.setDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
       //.registerTypeAdapter(N3Map.class,new N3MapDeserializer())
       .setPrettyPrinting();

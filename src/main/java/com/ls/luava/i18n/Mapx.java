@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.ls.luava.common.Finder;
 import com.ls.luava.common.N3Map;
+import com.ls.luava.common.Size;
 import com.ls.luava.common.Types;
 
 import java.text.DecimalFormat;
@@ -85,7 +86,14 @@ public class Mapx extends N3Map {
         if(!Strings.isNullOrEmpty(pattern)){
           value = getDateFormat(pattern).format(value);
         }
-      }else{
+      }else if ("size".equals(type)) {
+        if(value!=null){
+          value = Size.parse(value.toString());
+        }else{
+          value = Size.toSize(0);
+        }
+
+      } else if("int".equals(type)||"double".equals(type)){
         if ("int".equals(type)) {
           value = Types.castToLong(value);
         }
