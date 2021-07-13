@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -59,9 +60,13 @@ public class MsgServiceImpl implements MsgService{
     final Msg msg = this.getMsg(name);
     if(msg!=null) {
       String s = msg.getMessage();
-      ResourceBundle messages = getResourceBundle();
+      ResourceBundle messages = getResourceBundle(locale);
       if(messages!=null&&messages.containsKey(msg.name())) {
         s = messages.getString(msg.name());
+        String ns = new String(s.getBytes(StandardCharsets.ISO_8859_1),StandardCharsets.ISO_8859_1);
+        if(ns.equals(s)) {
+          s = new String(s.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        }
       }
       Mapx mapx = new Mapx(data, key -> {
         Object message = getMessage(key, data, locale);
@@ -74,10 +79,10 @@ public class MsgServiceImpl implements MsgService{
     return null;
   }
 
-  private ResourceBundle getResourceBundle() {
+  private ResourceBundle getResourceBundle(Locale locale) {
     ResourceBundle messages = null;
     try {
-      messages = ResourceBundle.getBundle("messages");
+      messages = ResourceBundle.getBundle("messages",locale);
     } catch (Exception e) {
       LOG.warn("getBundle fail",e);
     }
