@@ -1,5 +1,6 @@
 package com.ls.luava.i18n;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.ls.luava.common.Finder;
@@ -10,6 +11,8 @@ import com.ls.luava.common.Types;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -23,6 +26,13 @@ import java.util.function.Function;
 public class Mapx extends N3Map {
 
   public static final String MARK = "|";
+  public static final String INT = "int";
+  public static final String DOUBLE = "double";
+  public static final String SIZE = "size";
+  public static final String LIST = "list";
+  public static final String DATE = "date";
+  final Joiner joiner = Joiner.on(",");
+
   volatile Map<String,SimpleDateFormat> dateFormatCache = Maps.newHashMap();
   volatile Map<String,DecimalFormat> decimalFormatCache = Maps.newHashMap();
   private Function<String,Object> parent = null;
@@ -81,23 +91,27 @@ public class Mapx extends N3Map {
     String type = finder.tail(MARK,1).head(MARK, Finder.nullToParent).getNullableValue().orElse("");
     if(!type.isEmpty()) {
       String pattern = finder.tail(MARK,2).getValue();
-      if ("date".equals(type)) {
+      if (DATE.equals(type)) {
         value = Types.castToDate(value);
         if(!Strings.isNullOrEmpty(pattern)){
           value = getDateFormat(pattern).format(value);
         }
-      }else if ("size".equals(type)) {
+      } else if (LIST.equals(type)) {
+        if(value instanceof Iterable){
+          Iterable iterable = (Iterable)value;
+          value = joiner.join(iterable);
+        }
+      }else if (SIZE.equals(type)) {
         if(value!=null){
           value = Size.parse(value.toString());
         }else{
           value = Size.toSize(0);
         }
-
-      } else if("int".equals(type)||"double".equals(type)){
-        if ("int".equals(type)) {
+      } else if(INT.equals(type)|| DOUBLE.equals(type)){
+        if (INT.equals(type)) {
           value = Types.castToLong(value);
         }
-        if ("double".equals(type)) {
+        if (DOUBLE.equals(type)) {
           value = Types.castToDouble(value);
         }
         if(!Strings.isNullOrEmpty(pattern)){
