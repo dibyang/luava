@@ -1,5 +1,6 @@
 package com.ls.luava.i18n;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.ls.luava.common.N3Map;
 import com.ls.luava.text.StrSubstitutor;
@@ -57,26 +58,30 @@ public class MsgServiceImpl implements MsgService{
 
   @Override
   public String getMessage(String name, Map<String, Object> data, Locale locale) {
-    final Msg msg = this.getMsg(name);
-    if(msg!=null) {
-      String s = msg.getMessage();
-      ResourceBundle messages = getResourceBundle(locale);
-      if(messages!=null&&messages.containsKey(msg.name())) {
-        s = messages.getString(msg.name());
-        String ns = new String(s.getBytes(StandardCharsets.ISO_8859_1),StandardCharsets.ISO_8859_1);
-        if(ns.equals(s)) {
-          s = new String(s.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-        }
+    String s = null;
+    ResourceBundle messages = getResourceBundle(locale);
+    if (messages != null && messages.containsKey(name)) {
+      s = messages.getString(name);
+      String ns = new String(s.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.ISO_8859_1);
+      if (ns.equals(s)) {
+        s = new String(s.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
       }
+    }
+    if (Strings.isNullOrEmpty(s)) {
+      final Msg msg = this.getMsg(name);
+      if (msg != null) {
+        s = msg.getMessage();
+      }
+    }
+    if(!Strings.isNullOrEmpty(s)){
       Mapx mapx = new Mapx(data, key -> {
         Object message = getMessage(key, data, locale);
         data.put(key, message);
         return message;
       });
-
-      return StrSubstitutor.replace(s,mapx);
+      return StrSubstitutor.replace(s, mapx);
     }
-    return null;
+    return name;
   }
 
   private ResourceBundle getResourceBundle(Locale locale) {
