@@ -22,6 +22,9 @@ public class N3Future<T> implements Future<T> {
   private volatile Throwable t;
   private volatile long startTime;
 
+
+  private final N3Map context = new N3Map();
+
   public N3Future() {
     resetStartTime();
   }
@@ -137,4 +140,8 @@ public class N3Future<T> implements Future<T> {
     return false;
   }
 
+
+  public N3Map getContext() {
+    return context;
+  }
 }
