@@ -62,8 +62,7 @@ public class N3Future<T> implements Future<T> {
     return getResult();
   }
 
-  public synchronized T tryGet(final long timeout, final TimeUnit unit)
-      throws InterruptedException, ExecutionException, TimeoutException {
+  public synchronized T tryGet(final long timeout, final TimeUnit unit) {
     T t = null;
     try {
       t = get(timeout, unit);
