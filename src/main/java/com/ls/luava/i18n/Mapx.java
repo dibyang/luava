@@ -121,4 +121,11 @@ public class Mapx extends N3Map {
     }
     return value;
   }
+
+  public static void main(String[] args) {
+    Mapx mapx = new Mapx();
+    mapx.put("d",10.5);
+    final Object o = mapx.get("d||double|0.00%");
+    System.out.println("o = " + o);
+  }
 }

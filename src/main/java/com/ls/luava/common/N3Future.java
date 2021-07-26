@@ -1,6 +1,8 @@
 package com.ls.luava.common;
 
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -13,6 +15,7 @@ import java.util.concurrent.TimeoutException;
  * @param <T>
  */
 public class N3Future<T> implements Future<T> {
+  static final Logger LOG = LoggerFactory.getLogger(N3Future.class);
 
   private volatile boolean completed;
   private volatile T result;
@@ -39,14 +42,12 @@ public class N3Future<T> implements Future<T> {
     return this.result;
   }
 
-  public synchronized T get(boolean throwException) throws InterruptedException, ExecutionException {
+  public synchronized T tryGet() {
     T t = null;
     try {
       t = get();
     } catch (InterruptedException | ExecutionException e) {
-      if (throwException) {
-        throw e;
-      }
+      LOG.warn("ignore exception",e);
     }
     return t;
   }
@@ -61,15 +62,13 @@ public class N3Future<T> implements Future<T> {
     return getResult();
   }
 
-  public synchronized T get(boolean throwException, final long timeout, final TimeUnit unit)
+  public synchronized T tryGet(final long timeout, final TimeUnit unit)
       throws InterruptedException, ExecutionException, TimeoutException {
     T t = null;
     try {
       t = get(timeout, unit);
     } catch (InterruptedException | ExecutionException | TimeoutException e) {
-      if (throwException) {
-        throw e;
-      }
+      LOG.warn("ignore exception",e);
     }
     return t;
   }
