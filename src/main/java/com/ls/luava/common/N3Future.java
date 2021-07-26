@@ -42,6 +42,10 @@ public class N3Future<T> implements Future<T> {
     return this.result;
   }
 
+  public Throwable getThrowable(){
+    return this.t;
+  }
+
   public synchronized T tryGet() {
     T t = null;
     try {
