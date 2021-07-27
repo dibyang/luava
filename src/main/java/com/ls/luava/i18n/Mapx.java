@@ -94,7 +94,11 @@ public class Mapx extends N3Map {
       if (DATE.equals(type)) {
         value = Types.castToDate(value);
         if(!Strings.isNullOrEmpty(pattern)){
-          value = getDateFormat(pattern).format(value);
+          try {
+            value = getDateFormat(pattern).format(value);
+          } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException("key:"+key+" format error. "+e.getMessage(),e);
+          }
         }
       } else if (LIST.equals(type)) {
         if(value instanceof Iterable){
@@ -115,7 +119,11 @@ public class Mapx extends N3Map {
           value = Types.castToDouble(value);
         }
         if(!Strings.isNullOrEmpty(pattern)){
-          value = getDecimalFormat(pattern).format(value);
+          try {
+            value = getDecimalFormat(pattern).format(value);
+          } catch (IllegalArgumentException e){
+            throw new IllegalArgumentException("key:"+key+" format error. "+e.getMessage(),e);
+          }
         }
       }
     }
