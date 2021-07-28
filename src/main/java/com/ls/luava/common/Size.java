@@ -2,6 +2,7 @@ package com.ls.luava.common;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,7 +13,7 @@ import java.util.regex.Pattern;
  * @author 杨志坚 Email: dib.yang@gmail.com
  *
  */
-public class Size {
+public class Size implements Comparator<Size> {
   private final static Pattern pattern = Pattern
       .compile("((\\d*\\.)?\\d+((e|E)\\d+)?\\s*)(B|BYTES|K|KB|M|MB|G|GB|T|TB|P|PB|E|EB|Z|ZB)?");
 
@@ -74,6 +75,11 @@ public class Size {
     } else {
       this.unit = Unit.bytes;
     }
+  }
+
+  @Override
+  public int compare(Size o1, Size o2) {
+    return Long.compare(o1.byteSize,o2.byteSize);
   }
 
   @Override
