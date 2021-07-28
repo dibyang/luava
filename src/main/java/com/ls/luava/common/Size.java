@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * @author 杨志坚 Email: dib.yang@gmail.com
  *
  */
-public class Size implements Comparator<Size> {
+public class Size implements Comparable<Size> {
   private final static Pattern pattern = Pattern
       .compile("((\\d*\\.)?\\d+((e|E)\\d+)?\\s*)(B|BYTES|K|KB|M|MB|G|GB|T|TB|P|PB|E|EB|Z|ZB)?");
 
@@ -75,11 +75,6 @@ public class Size implements Comparator<Size> {
     } else {
       this.unit = Unit.bytes;
     }
-  }
-
-  @Override
-  public int compare(Size o1, Size o2) {
-    return Long.compare(o1.byteSize,o2.byteSize);
   }
 
   @Override
@@ -160,4 +155,11 @@ public class Size implements Comparator<Size> {
 
   }
 
+  @Override
+  public int compareTo(Size o) {
+    if(o!=null) {
+      return Long.compare(this.byteSize, o.byteSize);
+    }
+    return 1;
+  }
 }
