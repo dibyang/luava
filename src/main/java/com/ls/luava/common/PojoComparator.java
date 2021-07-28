@@ -19,16 +19,12 @@ public class PojoComparator<T> implements Comparator<T> {
     if(Map.class.isAssignableFrom(clazz)){
       field = null;
     }else {
-      try {
-        for (Field declaredField : clazz.getDeclaredFields()) {
-          if(declaredField.getName().equalsIgnoreCase(fieldName)){
-            field = declaredField;
-            break;
-          }
-        }        field = clazz.getDeclaredField(fieldName);
-        field.setAccessible(true);
-      } catch (NoSuchFieldException e) {
-        e.printStackTrace();
+      for (Field declaredField : clazz.getDeclaredFields()) {
+        if(declaredField.getName().equalsIgnoreCase(fieldName)){
+          field = declaredField;
+          field.setAccessible(true);
+          break;
+        }
       }
     }
   }
