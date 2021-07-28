@@ -20,7 +20,12 @@ public class PojoComparator<T> implements Comparator<T> {
       field = null;
     }else {
       try {
-        field = clazz.getDeclaredField(fieldName);
+        for (Field declaredField : clazz.getDeclaredFields()) {
+          if(declaredField.getName().equalsIgnoreCase(fieldName)){
+            field = declaredField;
+            break;
+          }
+        }        field = clazz.getDeclaredField(fieldName);
         field.setAccessible(true);
       } catch (NoSuchFieldException e) {
         e.printStackTrace();
