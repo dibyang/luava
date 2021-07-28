@@ -1,7 +1,10 @@
 package com.ls.luava.common;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Comparator;
+import java.util.Map;
 
 /**
  * @author yangzj
@@ -11,16 +14,19 @@ public class PojoComparator<T> implements Comparator<T> {
   private final String fieldName;
   private Field field;
 
-  public PojoComparator(Class<T> clazz,String fieldName) {
+  public PojoComparator(Class<T> clazz, String fieldName) {
     this.fieldName = fieldName;
-    try {
-      field = clazz.getField(fieldName);
-      field.setAccessible(true);
-    } catch (NoSuchFieldException e) {
-      e.printStackTrace();
+    if(Map.class.isAssignableFrom(clazz)){
+      field = null;
+    }else {
+      try {
+        field = clazz.getDeclaredField(fieldName);
+        field.setAccessible(true);
+      } catch (NoSuchFieldException e) {
+        e.printStackTrace();
+      }
     }
   }
-
 
   @Override
   public int compare(T o1, T o2) {
@@ -36,15 +42,25 @@ public class PojoComparator<T> implements Comparator<T> {
 
   private Object getValue(T obj) {
     Object value = null;
-    if(obj != null&&field!=null){
-      try {
-        value = field.get(obj);
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
+    if(obj != null){
+      if(field!=null){
+        try {
+          value = field.get(obj);
+        } catch (IllegalAccessException e) {
+          e.printStackTrace();
+        }
+      }else{
+        if(obj instanceof Map){
+          value = ((Map)obj).get(fieldName);
+        }
       }
     }
     return value;
   }
 
+  public static void main(String[] args) {
+    PojoComparator<User> comparator = new PojoComparator<>(User.class,"name");
+
+  }
 
 }
