@@ -9,12 +9,16 @@ import java.util.Comparator;
  */
 public class PojoComparator<T> implements Comparator<T> {
   private final String fieldName;
-  private final Field field;
+  private Field field;
 
-  public PojoComparator(Class<T> clazz,String fieldName) throws NoSuchFieldException {
+  public PojoComparator(Class<T> clazz,String fieldName) {
     this.fieldName = fieldName;
-    field = clazz.getField(fieldName);
-    field.setAccessible(true);
+    try {
+      field = clazz.getField(fieldName);
+      field.setAccessible(true);
+    } catch (NoSuchFieldException e) {
+      e.printStackTrace();
+    }
   }
 
 
@@ -32,7 +36,7 @@ public class PojoComparator<T> implements Comparator<T> {
 
   private Object getValue(T obj) {
     Object value = null;
-    if(obj != null){
+    if(obj != null&&field!=null){
       try {
         value = field.get(obj);
       } catch (IllegalAccessException e) {
