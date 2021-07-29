@@ -65,16 +65,5 @@ public class PojoComparator<T> implements Comparator<T> {
     return value;
   }
 
-  public static void main(String[] args) {
-    Comparator<User> comparator = new PojoComparator<>(User.class,"p").reversed();
-    List<User> users = Lists.newArrayList();
-    users.add(new User("a1",1.0));
-    users.add(new User("a2",2.0));
-    users.add(new User("a3",3.0));
-    users.add(new User("a4",null));
-    users.add(new User("a5",null));
-    final List<User> users1 = users.stream().sorted(comparator).collect(Collectors.toList());
-    System.out.println("users1 = " + users1);
-  }
 
 }
