@@ -79,7 +79,10 @@ public class MsgServiceImpl implements MsgService{
         data.put(key, message);
         return message;
       });
-      return StrSubstitutor.replace(s, mapx);
+      StrSubstitutor strSubstitutor = new StrSubstitutor(mapx);
+      //strSubstitutor.setPreserveEscapes(false);
+      strSubstitutor.setEnableSubstitutionInVariables(true);
+      return strSubstitutor.replace(s);
     }
     return name;
   }
@@ -92,6 +95,37 @@ public class MsgServiceImpl implements MsgService{
       LOG.warn("getBundle fail",e);
     }
     return messages;
+  }
+
+  public static void main(String[] args) {
+    MsgServiceImpl msgService = new MsgServiceImpl();
+    msgService.addMsg(new Msg() {
+      @Override
+      public String name() {
+        return "xd2";
+      }
+
+      @Override
+      public String getMessage() {
+        return "纠删码";
+      }
+    });
+    msgService.addMsg(new Msg() {
+      @Override
+      public String name() {
+        return "test";
+      }
+
+      @Override
+      public String getMessage() {
+        return "模式:${${layout}}";
+      }
+    });
+    N3Map map = new N3Map();
+    map.put("layout","xd2");
+    final String test = msgService.getMessage("test", map);
+    System.out.println("test = " + test);
+
   }
 
 }
