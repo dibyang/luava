@@ -1,20 +1,18 @@
 package com.ls.luava.common;
 
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * @author yangzj
  */
-public class Parser{
+public class TextParser {
 
-	public  Map<String,String> parseMap(String str,String split) {
-		Map<String,String> data=Maps.newHashMap();
+	public  N3Map parseMap(String str,String split) {
+    N3Map data = new N3Map();
 		String[] params=str.split(split);
 		for(String param:params)
 		{
@@ -46,7 +44,7 @@ public class Parser{
 		return values;
 	}
 	
-	public List<Map<String, String>> parseTableBySpliter(String str) {
+	public List<N3Map> parseTableBySpliter(String str) {
 		List<String> lines= Lists.newArrayList(Splitter.on("\n").trimResults().omitEmptyStrings().splitToList(str));
 		
 		return parseTableBySpliter(lines);
@@ -57,13 +55,13 @@ public class Parser{
 	 * @param lines
 	 * @return
 	 */
-	public List<Map<String, String>> parseTableBySpliter(List<String> lines) {
-		List<Map<String, String>> data=Lists.newArrayList();
+	public List<N3Map> parseTableBySpliter(List<String> lines) {
+		List<N3Map> data=Lists.newArrayList();
 		List<String> head=this.parseValues(lines.get(0));
 		for(int i=1;i<lines.size();i++)
 		{
 			List<String> lds=this.parseValues(lines.get(i));
-			Map<String, String> map=Maps.newHashMap();
+      N3Map map = new N3Map();
 			for(int j=0;j<head.size();j++)
 			{
 				if(j<lds.size()){
@@ -142,7 +140,7 @@ public class Parser{
 		}
 		return ths;
 	}
-	public List<Map<String, String>> parseTableByWidth(String str)
+	public List<N3Map> parseTableByWidth(String str)
 	{
 		List<String> lines= Lists.newArrayList(str.split("\n"));
 		return this.parseTableByWidth(lines);
@@ -153,13 +151,13 @@ public class Parser{
 	 * @param lines
 	 * @return
 	 */
-  public List<Map<String, String>> parseTableByWidth(List<String> lines) {
-    List<Map<String, String>> data = Lists.newArrayList();
+  public List<N3Map> parseTableByWidth(List<String> lines) {
+    List<N3Map> data = Lists.newArrayList();
     List<TH> ths = this.parseTH(lines.get(0));
     for (int i = 1; i < lines.size(); i++) {
       String line = lines.get(i);
       if (ths.size() > 0 && line != null) {
-        Map<String, String> ld = Maps.newHashMap();
+        N3Map ld = new N3Map();
         for (int j = 0; j < ths.size(); j++) {
           TH th = ths.get(j);
           if (line.length() >= th.getEndIndex()) {
@@ -179,7 +177,7 @@ public class Parser{
 
 	public  static void main(String[] args)
 	{
-		Parser p = new Parser();
+		TextParser p = new TextParser();
 		List<?> d=p.parseValues("02:25:45 PM     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s");
 		System.out.println(d);
 	}
