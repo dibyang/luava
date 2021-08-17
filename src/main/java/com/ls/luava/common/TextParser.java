@@ -132,9 +132,12 @@ public class TextParser {
 			for(String name:names)
 			{
 				TH th=new TH(name);
-				th.setBeginIndex(index);
-				th.setEndIndex(line.indexOf(name,th.getBeginIndex())+name.length());
-				index=th.getEndIndex()+1;
+				th.setBeginIndex(line.indexOf(name,index));
+        th.setEndIndex(-1);
+				if(ths.size()>0) {
+          ths.get(ths.size()-1).setEndIndex(th.getBeginIndex());
+        }
+				index=th.getBeginIndex()+th.getName().length();
 				ths.add(th);
 			}
 		}
@@ -161,7 +164,7 @@ public class TextParser {
         for (int j = 0; j < ths.size(); j++) {
           TH th = ths.get(j);
           if (line.length() >= th.getEndIndex()) {
-            if (j == ths.size() - 1) {
+            if (th.getEndIndex()==-1) {
               ld.put(th.getName(), line.substring(th.getBeginIndex()).trim());
             } else {
               ld.put(th.getName(), line.substring(th.getBeginIndex(), th.getEndIndex()).trim());
@@ -178,7 +181,7 @@ public class TextParser {
 	public  static void main(String[] args)
 	{
 		TextParser p = new TextParser();
-		List<?> d=p.parseValues("02:25:45 PM     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s");
+		List<?> d=p.parseTH("NAME   UUID                                  TYPE      DEVICE");
 		System.out.println(d);
 	}
 	
@@ -218,7 +221,13 @@ public class TextParser {
     public TH(String name) {
       this.name = name;
     }
-    
+
+    @Override
+    public String toString() {
+      return name + '[' +beginIndex +
+        ", " + endIndex +
+        ']';
+    }
   }
 
 }
