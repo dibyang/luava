@@ -1,18 +1,16 @@
 package com.ls.luava.os;
 
 
+/**
+ * @author yzj
+ */
 public enum OSProxyFactory {
   factory;
 
 
   public OSProxy getOSProxy() {
-    OS os = getOS();
+    OS os = OS.getOS();
     return os.getOSProxy();
-  }
-
-  public synchronized static OS getOS() {
-    String os_name = System.getProperty("os.name");
-    return OS.parse(os_name);
   }
 
 }
