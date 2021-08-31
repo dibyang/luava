@@ -11,6 +11,21 @@ public class NullProxy implements OSProxy {
   }
 
   @Override
+  public Process process(String cmd, Object... args) {
+    return null;
+  }
+
+  @Override
+  public Process process(CmdBuilder cmdBuilde) {
+    return null;
+  }
+
+  @Override
+  public Process process(CmdBuilder cmdBuilde, PreExecute preExecute) {
+    return null;
+  }
+
+  @Override
   public CmdResult exec(String cmd, Object... args) {
     return CmdResult.Null;
   }
