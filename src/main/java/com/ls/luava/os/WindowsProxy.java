@@ -42,8 +42,7 @@ public class WindowsProxy extends BaseOSProxy {
 
   @Override
   public CmdResult kill(String pid) {
-    LOG.info("kill -9 " + pid);
-    return exec("kill", "-9", pid);
+    return exec("tskill", pid);
   }
 
   @Override
