@@ -5,6 +5,12 @@ import java.io.IOException;
 public interface OSProxy {
   OS getOS();
 
+  Process process(String cmd, Object... args);
+
+  Process process(CmdBuilder cmdBuilde);
+
+  Process process(CmdBuilder cmdBuilde, PreExecute preExecute);
+
   CmdResult exec(String cmd, Object... args);
 
   CmdResult exec(CmdBuilder cmdBuilde);

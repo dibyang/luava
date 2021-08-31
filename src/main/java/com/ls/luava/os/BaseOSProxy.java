@@ -24,6 +24,30 @@ public abstract class BaseOSProxy implements OSProxy {
     return processBuilder;
   }
 
+  @Override
+  public Process process(String cmd, Object... args) {
+    return process(CmdBuilder.create(cmd, args));
+  }
+
+  @Override
+  public Process process(CmdBuilder cmdBuilde) {
+    return process(cmdBuilde,null);
+  }
+
+  @Override
+  public Process process(CmdBuilder cmdBuilde, PreExecute preExecute) {
+    Process process = null;
+    try {
+      ProcessBuilder processBuilder = processBuilder(cmdBuilde);
+      if (preExecute != null) {
+        preExecute.preExecute(processBuilder);
+      }
+      process = processBuilder.start();
+    } catch (IOException e) {
+      LOG.warn("", e);
+    }
+    return process;
+  }
 
   @Override
   public CmdResult exec(String cmd, Object... args) {
