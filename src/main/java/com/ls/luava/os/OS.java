@@ -39,8 +39,6 @@ public enum OS {
         os = OS.linux;
       } else if (name.startsWith(WINDOWS)) {
         os = OS.windows;
-      } {
-        os = OS.other;
       }
     }
     return os;
