@@ -64,6 +64,7 @@ repositories {
 dependencies {
   compile("com.google.guava:guava:31.0-jre"){
     exclude module:"listenablefuture"
+    exclude module:"checker-qual"
   }
   compile("com.google.code.gson:gson:2.8.6")
   compile("org.apache.commons:commons-lang3:3.9")
