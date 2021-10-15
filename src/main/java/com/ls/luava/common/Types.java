@@ -430,15 +430,18 @@ public abstract class Types {
     }    
     return target;
   }
-  
-  public static Map<String, Object> objectToMap(Object source, NameMapping mapping) {
-    Map<String, Object> target = Maps.newHashMap();
-      
-    if(mapping==null){
-      mapping=NameMapping.c();
-    }
-    
 
+  static  <T> void castObject(Object source, T target, NameMapping mapping) {
+    if(source instanceof Map){
+      mapToObject((Map<?, ?>)source, target, mapping);
+    }else if(target instanceof Map){
+      objectToMap(source, mapping);
+    }else{
+      Copys.copy(source, target, mapping);
+    }
+  }
+
+  static void objectToMap(Object source,Map<String, Object> target, NameMapping mapping) {
     Field[] fields = source.getClass().getDeclaredFields();
     for (Field field : fields) {
       int mod = field.getModifiers();
@@ -461,6 +464,15 @@ public abstract class Types {
       }
 
     }
+  }
+  public static Map<String, Object> objectToMap(Object source, NameMapping mapping) {
+    Map<String, Object> target = Maps.newHashMap();
+      
+    if(mapping==null){
+      mapping=NameMapping.c();
+    }
+
+    objectToMap(source,target,mapping);
     return target;
   }
 
@@ -483,8 +495,27 @@ public abstract class Types {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+    mapToObject(source, target, mapping);
+    
+    return target;
+  }
+
+  static List<Field> getFields(Class clazz){
+    Map<String,Field> fields = Maps.newHashMap();
+    Class tmpClass = clazz;
+    while (tmpClass !=null && !tmpClass.equals(Object.class)) {
+      final Field[] fields1 = tmpClass.getDeclaredFields();
+      for (Field field : fields1) {
+        fields.putIfAbsent(field.getName(),field);
+      }
+      tmpClass = tmpClass.getSuperclass();
+    }
+    return new ArrayList<>(fields.values());
+  }
+
+  static <T> void mapToObject(Map<?, ?> source, T target, NameMapping mapping) {
     if(target!=null){
-      Field[] fields = target.getClass().getDeclaredFields();
+      List<Field> fields = getFields(target.getClass());
       for (Field field : fields) {
         int mod = field.getModifiers();
         if (Modifier.isStatic(mod)|| Modifier.isTransient(mod)) {
@@ -494,7 +525,7 @@ public abstract class Types {
           if(Collection.class.isAssignableFrom(field.getType())){
             String name=mapping.getSource(field.getName());
             if (source.containsKey(name)) {
-              field.setAccessible(true);              
+              field.setAccessible(true);
               try {
                 Collection c = (Collection)field.get(target);
                 c.clear();
@@ -508,7 +539,7 @@ public abstract class Types {
                     c.add(cast(o, genericClazz));
                   }
                 }
-                
+
               } catch (IllegalArgumentException e) {
                 e.printStackTrace();
               } catch (IllegalAccessException e) {
@@ -518,7 +549,7 @@ public abstract class Types {
           }else if(Map.class.isAssignableFrom(field.getType())){
             String name=mapping.getSource(field.getName());
             if (source.containsKey(name)) {
-              field.setAccessible(true);              
+              field.setAccessible(true);
               try {
                 Map c = (Map)field.get(target);
                 c.clear();
@@ -540,6 +571,18 @@ public abstract class Types {
                 e.printStackTrace();
               }
             }
+          }else{
+            String name=mapping.getSource(field.getName());
+            if (source.containsKey(name)) {
+              final Object o1 = source.get(name);
+              field.setAccessible(true);
+              try {
+                final Object o = field.get(target);
+                castObject(o1,o,mapping);
+              } catch (IllegalAccessException e) {
+                e.printStackTrace();
+              }
+            }
           }
         }else{
           String name=mapping.getSource(field.getName());
@@ -556,10 +599,7 @@ public abstract class Types {
         }
       }
     }
-    
-    return target;
   }
-  
   
   
   public static final <T> T cast(Object obj, Class<T> clazz, T defValue) {
