@@ -1,7 +1,6 @@
 package com.ls.luava.common;
 
 import com.google.common.collect.Lists;
-import com.google.gson.JsonPrimitive;
 
 import java.util.*;
 
@@ -15,6 +14,45 @@ public class N3Map extends HashMap<String, Object> {
 
   public N3Map(Map<String, ?> m) {
     super(m);
+  }
+
+
+  /**
+   * 把map包装成一个bean
+   * @param clazz bean的class
+   * @param <T> bean的类型
+   * @return bean
+   */
+  public <T> T wrap(Class<T> clazz){
+    return wrap(clazz,null);
+  }
+
+  /**
+   * 把map包装成一个bean
+   * @param clazz bean的class
+   * @param mapping 属性映射
+   * @param <T> bean的类型
+   * @return bean
+   */
+  public <T> T wrap(Class<T> clazz, NameMapping mapping){
+    return Types.mapToObject(this,clazz,mapping);
+  }
+
+  /**
+   * 把map数据填入存在的bean
+   * @param bean 存在的bean
+   */
+  public <T> void to(Object bean){
+    to(bean,null);
+  }
+
+  /**
+   * 把map数据填入存在的bean
+   * @param bean 存在的bean
+   * @param mapping 属性映射
+   */
+  public  void to(Object bean, NameMapping mapping){
+    Types.mapToObject(this,bean,mapping);
   }
 
   public Optional<Object> getValue(String... keys) {
@@ -96,12 +134,6 @@ public class N3Map extends HashMap<String, Object> {
   }
 
   public static N3Map of(Map<String, Object> map) {
-    N3Map n2Map = new N3Map();
-    n2Map.putAll(map);
-    return n2Map;
-  }
-
-  public static N3Map of2(Map<String, String> map) {
     N3Map n2Map = new N3Map();
     n2Map.putAll(map);
     return n2Map;
