@@ -91,3 +91,7 @@ uploadArchives {
   }
 }
 
+artifacts {
+  archives jar
+  archives sourcesJar
+}

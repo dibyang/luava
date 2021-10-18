@@ -515,6 +515,9 @@ public abstract class Types {
 
   static <T> void mapToObject(Map<?, ?> source, T target, NameMapping mapping) {
     if(target!=null){
+      if(mapping==null){
+        mapping=NameMapping.c();
+      }
       List<Field> fields = getFields(target.getClass());
       for (Field field : fields) {
         int mod = field.getModifiers();
