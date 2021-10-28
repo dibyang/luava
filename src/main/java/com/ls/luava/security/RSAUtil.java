@@ -21,6 +21,10 @@ import java.security.spec.X509EncodedKeySpec;
  */
 public class RSAUtil {
 
+  public static final String BEGIN_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----";
+  public static final String END_PUBLIC_KEY = "-----END PUBLIC KEY-----";
+  public static final String BEGIN_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----";
+  public static final String END_PRIVATE_KEY = "-----END PRIVATE KEY-----";
   private SecureRandom secrand = new SecureRandom();
   public Cipher rsaCipher;
 
@@ -113,7 +117,8 @@ public class RSAUtil {
 
   public PublicKey getPublicKey(String key) throws Exception {
     byte[] keyBytes;
-    keyBytes = BaseEncoding.base64Url().decode(key);
+    key = getKey(key,BEGIN_PUBLIC_KEY,END_PUBLIC_KEY);
+    keyBytes = BaseEncoding.base64().decode(key);
 
     X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
     KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
@@ -121,9 +126,22 @@ public class RSAUtil {
     return publicKey;
   }
 
+  private String getKey(String key,String begin,String end) {
+    if(key.startsWith(begin)){
+      key = key.substring(begin.length());
+    }
+    int index = key.indexOf(end);
+    if(index>0){
+      key = key.substring(0,index);
+    }
+    key = key.replaceAll("\n","");
+    return key;
+  }
+
   public PrivateKey getPrivateKey(String key) throws Exception {
     byte[] keyBytes;
-    keyBytes = BaseEncoding.base64Url().decode(key);
+    key = getKey(key, BEGIN_PRIVATE_KEY, END_PRIVATE_KEY);
+    keyBytes = BaseEncoding.base64().decode(key);
 
     PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
     KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
@@ -133,13 +151,13 @@ public class RSAUtil {
 
   public String getKeyString(Key key) throws Exception {
     byte[] keyBytes = key.getEncoded();
-    String s = BaseEncoding.base64Url().encode(keyBytes);
+    String s = BaseEncoding.base64().encode(keyBytes);
     return s;
   }
 
   public String encode(Key key, String content) throws NoSuchPaddingException, IOException {
     byte[] data = content.getBytes("utf-8");
-    return BaseEncoding.base64Url().encode(encode(key, data));
+    return BaseEncoding.base64().encode(encode(key, data));
   }
 
   public byte[] encode(Key key, byte[] data) throws NoSuchPaddingException, IOException {
@@ -199,7 +217,7 @@ public class RSAUtil {
   public String decode(Key key, String content) throws NoSuchPaddingException, IOException {
     byte[] data = null;
     try {
-      data = BaseEncoding.base64Url().decode(content);
+      data = BaseEncoding.base64().decode(content);
     } catch (Exception e1) {
       e1.printStackTrace();
     }
@@ -248,8 +266,44 @@ public class RSAUtil {
     // 密钥对
     //KeyPair keyPair = rsa.generateKeyPair(KeySize.K1024);
 
-    String priKey = "MIIBUwIBADANBgkqhkiG9w0BAQEFAASCAT0wggE5AgEAAkEAkvMGkImJkXv2PfF9f1bk7BTsJFSWGz8iO8FwM8dLF4kBCiAqc8d8bg9ruI1fy2tEqK1koccPA1bRv-lbIWpK8wIDAQABAkA1Sosr6aUJLLJtXmGLx6B3eVL2DfLt6KRqlUkyjejOnKRQ7MIoWNL03yJlsK5IzfMB_D0exZQSYvDg4gtj5_VRAiEA2C-LfYSGWPry8R72_nVOl7gX_rVk22XIyABIwmtqxrkCIQCuAzWFgr7FWvuR46ZM5eqR3JFmn5aCKOFym8KLZfFJCwIga59vv_LjtxRnMWaK666Wi61YNLM1HIwVYovRrQgwxfECIDMexDltuIeX-_HW9AMBRFEHgDuqxHeGdPzLX3K-Rw0TAiAZWIcMc7RsHPrp3nCrPkzDR1ZJwYiE6jBsv737_ZDmFw";
-    String pubKey = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJLzBpCJiZF79j3xfX9W5OwU7CRUlhs_IjvBcDPHSxeJAQogKnPHfG4Pa7iNX8trRKitZKHHDwNW0b_pWyFqSvMCAwEAAQ";
+    String priKey = "-----BEGIN PRIVATE KEY-----\n" +
+      "MIIEwAIBADANBgkqhkiG9w0BAQEFAASCBKowggSmAgEAAoIBAQDJFU+yIKaPYQn5\n" +
+      "2NLe7xF9vTE6fg67Hy5pmvq5dUOIRe5K3oZcOTqcggfGutXNFmIXWQWVah2Hq+Sm\n" +
+      "WWAGg9xgJlgYwcojZhqyjjyDIqxnGoo6z2NtvlDe+xkXpthiXbVp3LgVon0lSlLh\n" +
+      "SGJTIsFHaIwYDNMv2GEg+SIyBSLCy/P1DBe1S+jRyPkc3ppYMHPSx9UccqvNLKU/\n" +
+      "lFAlq4MHk+PTjsiCz2wAYcEx5SgEFfuYxksmOAawZ8Ap7jkqaLDl+W7l09nWJIad\n" +
+      "rprqutXO/jD96WjfjTGVRe0H8HbJP0bvnMFZfv+z5L8vR7IJhgqsOnD7SBjBKFcr\n" +
+      "/g7erCNxAgMBAAECggEBALxU5ni6FeXyCArmpdHA7Yvr16CmEhv1/11PlwZ+KssG\n" +
+      "XEHpGsRjoV6WdrwNn1NfZG3jpdQkOBYqy5N13/caJxwyrY46ap0u81BK4agcoIZM\n" +
+      "mCyusrxFZK8DVKQPU1kF1XSaEhvJPRbg/rEbP2QICCheZd/cmyuTqJzeWcWpg74W\n" +
+      "5eovbDqo8zyPo1DbjdHodPLHR0rXtLCjlGjrNab0/tQqzzSXswdG//13FnGReLq0\n" +
+      "a2E1s3LZb3GSbsRwRoys8BsJ0uY+25f0di0ZiYiVh5JjkErAjaZdeS3oWTaqflOu\n" +
+      "Wgg1+ZdJ9TakSY1j55jlXI8mf2+jAF/CJ/Af4ySCo0ECgYEA/e6Bfts6zcKf9XzD\n" +
+      "5URk+PEUWLwIsZYPP/Af57G7TXVjzxfMPW9ziF1pqN1Be4TvVX7n1k83dsbSF5Xn\n" +
+      "9BfzLptI6B0/emWCkpTdrgL2/iwfObJdGzaa50Bz2yrc+uQLYtgh3I+vVmmTecZs\n" +
+      "jl823kU1osjN9thpsXJT9UtaQ9kCgYEAyribWEKiFkcKFcDVBmyiF0KPUlgVzGt9\n" +
+      "LvB9d/AZxmr0sGbu27USi/ztD1CoHlaurMi1FbNLG4aQper5d0VAaKviGF5tvINy\n" +
+      "QLOZFObNI1rny/CNkL3Ke7Ku+z3mQ/ybDcIwle6teOILXq9p3SpB3wv9TMsOG5u3\n" +
+      "8kS3IuUv1VkCgYEA9c567CGruqI71ZcAyl56n8A+webDQ6TO/kWjnNUfSsvn4gBX\n" +
+      "ZOEOJWLHdP849CiqxUgjhAEK3592n/4smszUSrlmycoGOKUq0FnqfRfBoCl10JQo\n" +
+      "LL+fE1wAypejcfpuSzCNFsTAJhXs/GRnkSn6Iw877GgVeG3lYjAZtclLh4ECgYEA\n" +
+      "g5B92TEdisG+DNIiLtIv/FKJO5LJSurzypPvifh8ceaWOSoEmPiSOeIDZC4ffdkZ\n" +
+      "8i8sPxImi42wsM2n6705CPWMfe5C39abPtyQXB1SQ0DLMPNEnQxfrhoQMCRDHhqB\n" +
+      "8tL1v0iwssRZRrEnTo8PQxe/46fg1xAfuI7aID6H5bkCgYEApQ8avlUjchGNZFIj\n" +
+      "z2J/tc5wFV6tyv286YiYt/WSNmmYd9WGlsOmYQC9OfhPycKDaoroXA0zA5oGsqYB\n" +
+      "YykSgVYRW6j0it0Q8O8ALeNR628cBqHF2EspC777xedSy0nJFo9VcxF4HcAfJFc+\n" +
+      "NE4eTLxwL3YM1872IqelWBO+VIM=\n" +
+      "-----END PRIVATE KEY-----";
+
+    String pubKey = "-----BEGIN PUBLIC KEY-----\n" +
+      "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyRVPsiCmj2EJ+djS3u8R\n" +
+      "fb0xOn4Oux8uaZr6uXVDiEXuSt6GXDk6nIIHxrrVzRZiF1kFlWodh6vkpllgBoPc\n" +
+      "YCZYGMHKI2Yaso48gyKsZxqKOs9jbb5Q3vsZF6bYYl21ady4FaJ9JUpS4UhiUyLB\n" +
+      "R2iMGAzTL9hhIPkiMgUiwsvz9QwXtUvo0cj5HN6aWDBz0sfVHHKrzSylP5RQJauD\n" +
+      "B5Pj047Igs9sAGHBMeUoBBX7mMZLJjgGsGfAKe45Kmiw5flu5dPZ1iSGna6a6rrV\n" +
+      "zv4w/elo340xlUXtB/B2yT9G75zBWX7/s+S/L0eyCYYKrDpw+0gYwShXK/4O3qwj\n" +
+      "cQIDAQAB\n" +
+      "-----END PUBLIC KEY-----";
     String s = "你是小铃铛 ExpTime=1226577284468$Pid=100013$Sid=rlpm001 你好啊!!!&&";
 //    byte[] keyBytes;
 //    keyBytes = Base64.decodeBase64(priKey);
