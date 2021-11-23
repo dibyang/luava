@@ -42,8 +42,14 @@ public class LinuxProxy extends BaseOSProxy {
 
   @Override
   public CmdResult kill(String pid) {
-    LOG.info("kill -9 " + pid);
+    //LOG.info("kill -9 " + pid);
     return exec("kill", "-9", pid);
+  }
+
+  @Override
+  public boolean existProcess(String pid){
+    CmdResult exec = execShell("ps", "aux", "|awk '{print $2}'", "|grep", "-w", pid);
+    return exec.getResult().contains(pid);
   }
 
   @Override

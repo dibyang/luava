@@ -31,6 +31,8 @@ public interface OSProxy {
 
   CmdResult kill(String pid);
 
+  boolean existProcess(String pid);
+
   ServiceStatus statusService(String service);
 
 }

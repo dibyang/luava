@@ -41,6 +41,12 @@ public class WindowsProxy extends BaseOSProxy {
   }
 
   @Override
+  public boolean existProcess(String pid){
+    CmdResult exec = execShell("tasklist",  "/FI", "PID eq " + pid);
+    return exec.getResult().contains(pid);
+  }
+
+  @Override
   public CmdResult kill(String pid) {
     return exec("tskill", pid);
   }

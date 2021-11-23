@@ -76,6 +76,11 @@ public class NullProxy implements OSProxy {
   }
 
   @Override
+  public boolean existProcess(String pid) {
+    return false;
+  }
+
+  @Override
   public ServiceStatus statusService(String service) {
     return null;
   }
