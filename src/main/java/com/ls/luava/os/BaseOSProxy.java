@@ -15,13 +15,18 @@ public abstract class BaseOSProxy implements OSProxy {
 
   @Override
   public ProcessBuilder processBuilder(CmdBuilder cmdBuilde) throws IOException {
-    String[] cmdarray = cmdBuilde.shell ? this.getShellCmdArray(cmdBuilde.toString()) : cmdBuilde.getCmdArray();
+    String[] cmdarray = getCmdarray(cmdBuilde);
 
-    String cmdline = cmdBuilde.toString(cmdarray);
+    String cmdline = CmdBuilder.toString(cmdarray);
     LOG.debug(cmdline);
     ProcessBuilder processBuilder = new ProcessBuilder(cmdarray);
 
     return processBuilder;
+  }
+
+  protected String[] getCmdarray(CmdBuilder cmdBuilde) {
+    String[] cmdarray = cmdBuilde.shell ? this.getShellCmdArray(cmdBuilde.toString()) : cmdBuilde.getCmdArray();
+    return cmdarray;
   }
 
   @Override

@@ -88,7 +88,7 @@ public class CmdBuilder {
     return toString(this.getCmdArray());
   }
 
-  public String toString(String[] cmds) {
+  public static String toString(String[] cmds) {
     return ProcessTool.createCommandLine(cmds);
   }
 
