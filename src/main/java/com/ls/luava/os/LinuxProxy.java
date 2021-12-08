@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 public class LinuxProxy extends BaseOSProxy {
 	final static Logger LOG = LoggerFactory.getLogger(LinuxProxy.class);
 	public final static LinuxProxy INSTANCE = new LinuxProxy();
-  static final String LANG_EN = "LANG=\"en_US.UTF-8\";";
 
 	public LinuxProxy()
 	{
@@ -20,15 +19,10 @@ public class LinuxProxy extends BaseOSProxy {
     return OS.linux;
   }
 
-  @Override
-  public String[] getShellCmdArray(String cmd) {
-    return new String[]{"/bin/sh", "-c", cmd};
-  }
 
   @Override
   protected String[] getCmdarray(CmdBuilder cmdBuilde) {
-    String[] cmdarray = super.getCmdarray(cmdBuilde);
-    cmdarray[0] = LANG_EN + cmdarray[0];
+    String[] cmdarray = cmdBuilde.shell ? new String[]{"/bin/sh", "-c", cmdBuilde.toString()} : cmdBuilde.getCmdArray();
     return cmdarray;
   }
 

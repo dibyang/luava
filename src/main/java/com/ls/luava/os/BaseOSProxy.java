@@ -11,7 +11,6 @@ public abstract class BaseOSProxy implements OSProxy {
   final static Logger LOG = LoggerFactory.getLogger(BaseOSProxy.class);
   static final String line_separator = "\n";
 
-  public abstract String[] getShellCmdArray(String cmd);
 
   @Override
   public ProcessBuilder processBuilder(CmdBuilder cmdBuilde) throws IOException {
@@ -20,12 +19,12 @@ public abstract class BaseOSProxy implements OSProxy {
     String cmdline = CmdBuilder.toString(cmdarray);
     LOG.debug(cmdline);
     ProcessBuilder processBuilder = new ProcessBuilder(cmdarray);
-
+    processBuilder.environment().putAll(cmdBuilde.getEnvironment());
     return processBuilder;
   }
 
   protected String[] getCmdarray(CmdBuilder cmdBuilde) {
-    String[] cmdarray = cmdBuilde.shell ? this.getShellCmdArray(cmdBuilde.toString()) : cmdBuilde.getCmdArray();
+    String[] cmdarray = cmdBuilde.shell ? new String[]{"/bin/sh", "-c", cmdBuilde.toString()} : cmdBuilde.getCmdArray();
     return cmdarray;
   }
 

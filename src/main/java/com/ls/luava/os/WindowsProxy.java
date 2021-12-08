@@ -20,8 +20,9 @@ public class WindowsProxy extends BaseOSProxy {
   }
 
   @Override
-  public String[] getShellCmdArray(String cmd) {
-    return new String[]{"cmd.exe", "/c", cmd};
+  protected String[] getCmdarray(CmdBuilder cmdBuilde) {
+    String[] cmdarray = cmdBuilde.shell ? new String[]{"cmd.exe", "/c", cmdBuilde.toString()} : cmdBuilde.getCmdArray();
+    return cmdarray;
   }
 
   @Override

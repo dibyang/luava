@@ -2,21 +2,24 @@ package com.ls.luava.os;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public class CmdBuilder {
 	final List<String> cmds=new ArrayList<>();
+  final Map<String,String> environment = new HashMap<>();
 
   boolean shell = false;
   boolean readOut = true;
   boolean readErr = true;
 
   protected CmdBuilder(String cmd) {
+    environment.put("LANG","UTF-8");
 		cmds.add(cmd);
 	}
+
+  public Map<String, String> getEnvironment() {
+    return environment;
+  }
 
   public CmdBuilder setShell(boolean shell) {
     this.shell = shell;
