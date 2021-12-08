@@ -1,5 +1,8 @@
 package com.ls.luava.common;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,6 +16,7 @@ import java.util.Objects;
  * @date 2021/2/27
  */
 public class DataFile {
+  static final Logger LOG = LoggerFactory.getLogger(DataFile.class);
   private final File file;
 
   public DataFile(File file) {
@@ -26,7 +30,7 @@ public class DataFile {
 
   public boolean delete(){
     if(file.exists()){
-      Path bak = file.toPath().resolveSibling(".bak." + file.getName());
+      Path bak = getBakPath();
       File bakFile = bak.toFile();
       file.delete();
       if(bakFile.exists()){
@@ -37,13 +41,18 @@ public class DataFile {
     return false;
   }
 
+  private Path getBakPath() {
+    return file.toPath().resolveSibling(".bak." + file.getName());
+  }
+
   public byte[] readAllBytes() throws IOException {
     Path path = file.toPath();
-    Path bak = path.resolveSibling(".bak." + file.getName());
+    Path bak = getBakPath();
     File bakFile = bak.toFile();
-    if(file.exists()&&file.length()==0){
+    if(!file.exists()||file.length()==0){
       if(bakFile.exists()){
-        Files.copy(bak,path, StandardCopyOption.REPLACE_EXISTING);
+        LOG.warn("DataFile read bak file: {} size: {}",bakFile.getPath(),bakFile.length());
+        return Files.readAllBytes(bak);
       }
     }
     return Files.readAllBytes(path);
@@ -53,18 +62,14 @@ public class DataFile {
     Path path = file.toPath();
     Path bak = null;
     if(file.exists()){
-      bak = path.resolveSibling(".bak." + path.toFile().getName());
+      bak = getBakPath();
       Files.copy(path, bak, StandardCopyOption.REPLACE_EXISTING);
-    }
-    if(!file.getParentFile().exists()){
+    }else if(!file.getParentFile().exists()){
       file.getParentFile().mkdirs();
     }
     Files.write(path,bytes, StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.WRITE,StandardOpenOption.SYNC);
-    if(bak!=null){
-      File bakFile = bak.toFile();
-      if(bakFile.exists()){
-        bakFile.delete();
-      }
+    if(bak!=null&&bak.toFile().exists()){
+      bak.toFile().delete();
     }
   }
 
