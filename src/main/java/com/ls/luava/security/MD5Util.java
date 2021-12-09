@@ -9,25 +9,28 @@ import java.security.NoSuchAlgorithmException;
 public abstract class MD5Util {
 
   public final static String MD5(String s) {
-
-    try {
-      byte[] btInput = s.getBytes();
-      byte[] md = md5(btInput);
-
-      return bytesToHexString(md);
-    } catch (Exception e) {
-      e.printStackTrace();
-      return null;
-    }
+    byte[] btInput = s.getBytes();
+    byte[] md = md5(btInput);
+    return bytesToHexString(md);
   }
 
-  public final static byte[] md5(byte[] bytes) throws NoSuchAlgorithmException {
-    // 获得MD5摘要算法的 MessageDigest 对象
-    MessageDigest mdInst = MessageDigest.getInstance("MD5");
-    // 使用指定的字节更新摘要
-    mdInst.update(bytes);
-    // 获得密文
-    return mdInst.digest();
+  public final static String MD5(byte[] bytes) {
+    byte[] md = md5(bytes);
+    return bytesToHexString(md);
+  }
+
+  public final static byte[] md5(byte[] bytes) {
+    try {
+      // 获得MD5摘要算法的 MessageDigest 对象
+      MessageDigest mdInst = MessageDigest.getInstance("MD5");
+      // 使用指定的字节更新摘要
+      mdInst.update(bytes);
+      // 获得密文
+      return mdInst.digest();
+    } catch (NoSuchAlgorithmException e) {
+      e.printStackTrace();
+    }
+    return bytes;
   }
 
   public final static String MD5BASE58(String s) {
