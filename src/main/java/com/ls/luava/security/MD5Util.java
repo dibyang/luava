@@ -1,22 +1,18 @@
 package com.ls.luava.security;
 
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @since 0.2.0
  */
-public class MD5Util {
+public abstract class MD5Util {
 
   public final static String MD5(String s) {
 
     try {
       byte[] btInput = s.getBytes();
-      // 获得MD5摘要算法的 MessageDigest 对象
-      MessageDigest mdInst = MessageDigest.getInstance("MD5");
-      // 使用指定的字节更新摘要
-      mdInst.update(btInput);
-      // 获得密文
-      byte[] md = mdInst.digest();
+      byte[] md = md5(btInput);
 
       return bytesToHexString(md);
     } catch (Exception e) {
@@ -25,16 +21,21 @@ public class MD5Util {
     }
   }
 
+  public final static byte[] md5(byte[] bytes) throws NoSuchAlgorithmException {
+    // 获得MD5摘要算法的 MessageDigest 对象
+    MessageDigest mdInst = MessageDigest.getInstance("MD5");
+    // 使用指定的字节更新摘要
+    mdInst.update(bytes);
+    // 获得密文
+    return mdInst.digest();
+  }
+
   public final static String MD5BASE58(String s) {
 
     try {
       byte[] btInput = s.getBytes();
       // 获得MD5摘要算法的 MessageDigest 对象
-      MessageDigest mdInst = MessageDigest.getInstance("MD5");
-      // 使用指定的字节更新摘要
-      mdInst.update(btInput);
-      // 获得密文
-      byte[] md = mdInst.digest();
+      byte[] md = md5(btInput);
 
       return Base58.encode(md);
     } catch (Exception e) {
