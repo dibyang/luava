@@ -99,8 +99,5 @@ public abstract class StringMatcher {
     return j == p.length();
   }
 
-  public static void main(String[] args) {
-    isMatch("leofs_")
-  }
 
 }
