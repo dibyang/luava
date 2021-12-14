@@ -13,7 +13,7 @@ public class CmdBuilder {
 	boolean readErr = true;
 
 	protected CmdBuilder(String cmd) {
-		environment.put("LANG", "en_US.UTF-8");
+		environment.put("LANG", "UTF-8");
 		cmds.add(cmd);
 	}
 
