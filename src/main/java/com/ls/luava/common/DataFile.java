@@ -30,7 +30,7 @@ public class DataFile {
 
   public boolean delete(){
     if(file.exists()){
-      Path bak = getBakPath();
+      Path bak = getTmpPath();
       File bakFile = bak.toFile();
       file.delete();
       if(bakFile.exists()){
@@ -41,36 +41,29 @@ public class DataFile {
     return false;
   }
 
-  private Path getBakPath() {
-    return file.toPath().resolveSibling(".bak." + file.getName());
+  private Path getTmpPath() {
+    return file.toPath().resolveSibling(".tmp." + file.getName());
   }
 
   public byte[] readAllBytes() throws IOException {
     Path path = file.toPath();
-    Path bak = getBakPath();
-    File bakFile = bak.toFile();
-    if(!file.exists()||file.length()==0){
-      if(bakFile.exists()){
-        LOG.warn("DataFile read bak file: {} size: {}",bakFile.getPath(),bakFile.length());
-        return Files.readAllBytes(bak);
-      }
+    if(file.exists()) {
+      return Files.readAllBytes(path);
     }
-    return Files.readAllBytes(path);
+    return null;
   }
 
   public void write(byte[] bytes) throws IOException {
     Path path = file.toPath();
-    Path bak = null;
-    if(file.exists()){
-      bak = getBakPath();
-      Files.copy(path, bak, StandardCopyOption.REPLACE_EXISTING);
-    }else if(!file.getParentFile().exists()){
+    if(!file.getParentFile().exists()){
       file.getParentFile().mkdirs();
     }
-    Files.write(path,bytes, StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.WRITE,StandardOpenOption.SYNC);
-    if(bak!=null&&bak.toFile().exists()){
-      bak.toFile().delete();
+    Path tmp = getTmpPath();
+    if(tmp.toFile().exists()){
+      tmp.toFile().delete();
     }
+    Files.write(tmp,bytes, StandardOpenOption.CREATE,StandardOpenOption.WRITE,StandardOpenOption.SYNC);
+    Files.move(tmp,path, StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);
   }
 
   public static DataFile of(File file){
