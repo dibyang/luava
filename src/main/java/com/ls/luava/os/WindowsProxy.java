@@ -4,6 +4,8 @@ package com.ls.luava.os;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 
 public class WindowsProxy extends BaseOSProxy {
 	final static Logger LOG = LoggerFactory.getLogger(WindowsProxy.class);
@@ -13,6 +15,10 @@ public class WindowsProxy extends BaseOSProxy {
 	{
 	}
 
+  @Override
+  public ProcessBuilder processBuilder(CmdBuilder cmdBuilde) throws IOException {
+    return super.processBuilder(cmdBuilde);
+  }
 
   @Override
   public OS getOS() {

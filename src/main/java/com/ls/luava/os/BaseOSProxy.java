@@ -12,14 +12,20 @@ public abstract class BaseOSProxy implements OSProxy {
   static final String line_separator = "\n";
 
 
+
   @Override
   public ProcessBuilder processBuilder(CmdBuilder cmdBuilde) throws IOException {
     String[] cmdarray = getCmdarray(cmdBuilde);
 
     String cmdline = CmdBuilder.toString(cmdarray);
-    LOG.debug(cmdline);
+    if(cmdBuilde.debug){
+      LOG.info(cmdline);
+    }
     ProcessBuilder processBuilder = new ProcessBuilder(cmdarray);
     processBuilder.environment().putAll(cmdBuilde.getEnvironment());
+    if(cmdBuilde.debug){
+      LOG.info("environment:{}",processBuilder.environment());
+    }
     return processBuilder;
   }
 
@@ -77,7 +83,6 @@ public abstract class BaseOSProxy implements OSProxy {
 
         StringBuilder buf = new StringBuilder();
 
-
         if (cmdBuilde.isReadErr()) {
           StringBuilder err = new StringBuilder();
           try (BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
@@ -89,7 +94,6 @@ public abstract class BaseOSProxy implements OSProxy {
                   .append(line_separator);
             }
           }
-          LOG.debug(err.toString());
           r.setError(err.toString());
         }
         if (cmdBuilde.isReadOut()) {
@@ -100,12 +104,14 @@ public abstract class BaseOSProxy implements OSProxy {
                   .append(line_separator);
             }
           }
-          LOG.debug(buf.toString());
           r.setResult(buf.toString());
         }
         process.getOutputStream().close();
         int exitVal = process.waitFor();
         r.setStatus(exitVal);
+        if(cmdBuilde.debug) {
+          LOG.info(r.toString());
+        }
       }
     } catch (IOException e) {
       LOG.error("", e);

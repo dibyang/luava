@@ -3,6 +3,7 @@ package com.ls.luava.os;
 import java.io.IOException;
 
 public interface OSProxy {
+
   OS getOS();
 
   Process process(String cmd, Object... args);

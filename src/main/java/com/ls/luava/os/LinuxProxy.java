@@ -4,6 +4,8 @@ package com.ls.luava.os;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 
 public class LinuxProxy extends BaseOSProxy {
 	final static Logger LOG = LoggerFactory.getLogger(LinuxProxy.class);
@@ -13,6 +15,11 @@ public class LinuxProxy extends BaseOSProxy {
 	{
 	}
 
+  @Override
+  public ProcessBuilder processBuilder(CmdBuilder cmdBuilde) throws IOException {
+    cmdBuilde.getEnvironment().put("LANG", "en_US.UTF-8");
+    return super.processBuilder(cmdBuilde);
+  }
 
   @Override
   public OS getOS() {

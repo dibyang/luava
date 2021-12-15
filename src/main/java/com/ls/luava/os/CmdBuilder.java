@@ -11,11 +11,16 @@ public class CmdBuilder {
 	boolean shell = false;
 	boolean readOut = true;
 	boolean readErr = true;
+  volatile boolean debug;
 
 	protected CmdBuilder(String cmd) {
-		environment.put("LANG", "UTF-8");
 		cmds.add(cmd);
 	}
+
+  public CmdBuilder debug(boolean debug){
+    this.debug = debug;
+    return this;
+  }
 
 	public Map<String, String> getEnvironment() {
 		return environment;
