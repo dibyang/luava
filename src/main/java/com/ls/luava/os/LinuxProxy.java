@@ -17,7 +17,10 @@ public class LinuxProxy extends BaseOSProxy {
 
   @Override
   public ProcessBuilder processBuilder(CmdBuilder cmdBuilde) throws IOException {
-    cmdBuilde.getEnvironment().put("LANG", "en_US.UTF-8");
+    if(cmdBuilde.en) {
+      cmdBuilde.getEnvironment().put("LANG", "en_US.UTF-8");
+      cmdBuilde.getEnvironment().put("LANGUAGE","en_US:en");
+    }
     return super.processBuilder(cmdBuilde);
   }
 

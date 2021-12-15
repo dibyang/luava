@@ -11,11 +11,17 @@ public class CmdBuilder {
 	boolean shell = false;
 	boolean readOut = true;
 	boolean readErr = true;
-  volatile boolean debug;
+  boolean en = true;
+  boolean debug;
 
 	protected CmdBuilder(String cmd) {
 		cmds.add(cmd);
 	}
+
+  public CmdBuilder en(boolean en){
+    this.en = en;
+    return this;
+  }
 
   public CmdBuilder debug(boolean debug){
     this.debug = debug;
