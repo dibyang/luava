@@ -31,11 +31,7 @@ public class DataFile {
   public boolean delete(){
     if(file.exists()){
       Path bak = getTmpPath();
-      File bakFile = bak.toFile();
       file.delete();
-      if(bakFile.exists()){
-        bakFile.delete();
-      }
       return true;
     }
     return false;
@@ -59,10 +55,7 @@ public class DataFile {
       file.getParentFile().mkdirs();
     }
     Path tmp = getTmpPath();
-    if(tmp.toFile().exists()){
-      tmp.toFile().delete();
-    }
-    Files.write(tmp,bytes, StandardOpenOption.CREATE,StandardOpenOption.WRITE,StandardOpenOption.SYNC);
+    Files.write(tmp,bytes, StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.WRITE,StandardOpenOption.SYNC);
     Files.move(tmp,path, StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);
   }
 

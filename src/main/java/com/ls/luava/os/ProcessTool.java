@@ -7,7 +7,7 @@ public class ProcessTool {
 	private static final int VERIFICATION_WIN32 = 1;
 	@SuppressWarnings("unused")
 	private static final int VERIFICATION_LEGACY = 2;
-  private static final int VERIFICATION_LINUX = 3;
+  private static final int VERIFICATION_NO = 3;
 	private static final char ESCAPE_VERIFICATION[][] = {
 			// We guarantee the only command file execution for implicit
 			// [cmd.exe] run.
@@ -102,7 +102,7 @@ public class ProcessTool {
 	
 	
 	public static String createCommandLine(final String cmd[]) {
-		return createCommandLine(OS.getOS().equals(OS.windows)?VERIFICATION_WIN32:VERIFICATION_LINUX, cmd[0], cmd);
+		return createCommandLine(OS.getOS().equals(OS.windows)?VERIFICATION_WIN32: VERIFICATION_LEGACY, cmd[0], cmd);
 	}
 
 }
