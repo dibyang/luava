@@ -1,5 +1,8 @@
 package com.ls.luava.os;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ProcessTool {
 
 
@@ -83,6 +86,9 @@ public class ProcessTool {
 
 		// For [.exe] or [.com] file the unpaired/internal ["]
 		// in the argument is not a problem.
+    if(arg.isEmpty()){
+      return true;
+    }
 		boolean argIsQuoted = isQuoted(
 				(verificationType == VERIFICATION_CMD_BAT), arg,
 				"Argument has embedded quote, use the explicit CMD.EXE call.");
@@ -98,7 +104,19 @@ public class ProcessTool {
 		return false;
 	}
 
-	
+  public static String createCommandLine(final Object cmd[]) {
+    List<String> cmds = new ArrayList<>();
+    if(cmd!=null){
+      for (Object c : cmd) {
+        if(c!=null){
+          cmds.add(c.toString());
+        }else{
+          cmds.add("null");
+        }
+      }
+    }
+    return createCommandLine(cmds.toArray(new String[]{}));
+  }
 	
 	
 	public static String createCommandLine(final String cmd[]) {
