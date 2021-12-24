@@ -13,6 +13,7 @@ public class TextParser {
 
   public static final String REGEX_ANY_EMPTY = "(\\s)+";
   public static final String REGEX_ONE_EMPTY = "\\s";
+  public static final String EMPTY = "";
 
   public  N3Map parseMap(String str, String split) {
     N3Map data = new N3Map();
@@ -77,12 +78,12 @@ public class TextParser {
 			{
 				if(j<lds.size()){
 				  map.put(head.get(j), lds.get(j));
+        }else{
+          map.put(head.get(j), EMPTY);
         }
 			}
 			data.add(map);
 		}
-		
-		
 		return data;
 	}
 	
