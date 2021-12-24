@@ -11,7 +11,10 @@ import com.google.common.collect.Lists;
  */
 public class TextParser {
 
-	public  N3Map parseMap(String str,String split) {
+  public static final String REGEX_ANY_EMPTY = "(\\s)+";
+  public static final String REGEX_ONE_EMPTY = "\\s";
+
+  public  N3Map parseMap(String str, String split) {
     N3Map data = new N3Map();
 		String[] params=str.split(split);
 		for(String param:params)
@@ -31,7 +34,7 @@ public class TextParser {
 	
 	public List<String> parseValues(String str)
 	{
-		return parseValues(str.trim(),"(\\s)+");
+		return parseValues(str.trim(), REGEX_ANY_EMPTY);
 	}
 	
 	public List<String> parseValues(String str,String regex)
@@ -43,24 +46,32 @@ public class TextParser {
     }
 		return values;
 	}
+
+  public List<N3Map> parseTableBySpliter(String str) {
+    return parseTableBySpliter(str, REGEX_ANY_EMPTY);
+  }
 	
-	public List<N3Map> parseTableBySpliter(String str) {
+	public List<N3Map> parseTableBySpliter(String str,String regex) {
 		List<String> lines= Lists.newArrayList(Splitter.on("\n").trimResults().omitEmptyStrings().splitToList(str));
 		
-		return parseTableBySpliter(lines);
+		return parseTableBySpliter(lines,regex);
 	}
+
+  public List<N3Map> parseTableBySpliter(List<String> lines) {
+    return parseTableBySpliter(lines, REGEX_ANY_EMPTY);
+  }
 	
 	/**
 	 * 分隔符解析表格
 	 * @param lines
 	 * @return
 	 */
-	public List<N3Map> parseTableBySpliter(List<String> lines) {
+	public List<N3Map> parseTableBySpliter(List<String> lines, String regex) {
 		List<N3Map> data=Lists.newArrayList();
-		List<String> head=this.parseValues(lines.get(0));
+		List<String> head=this.parseValues(lines.get(0),regex);
 		for(int i=1;i<lines.size();i++)
 		{
-			List<String> lds=this.parseValues(lines.get(i));
+			List<String> lds=this.parseValues(lines.get(i),regex);
       N3Map map = new N3Map();
 			for(int j=0;j<head.size();j++)
 			{
@@ -181,7 +192,7 @@ public class TextParser {
 	public  static void main(String[] args)
 	{
 		TextParser p = new TextParser();
-		List<?> d=p.parseTH("NAME   UUID                                  TYPE      DEVICE");
+		List<?> d=p.parseValues("sdan 0 558.9G 0 disk 1 5000c5009a4768e3  ",REGEX_ONE_EMPTY);
 		System.out.println(d);
 	}
 	
