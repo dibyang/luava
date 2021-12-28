@@ -55,8 +55,11 @@ public class DataFile {
       file.getParentFile().mkdirs();
     }
     Path tmp = getTmpPath();
-    Files.write(tmp,bytes, StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.WRITE,StandardOpenOption.SYNC);
-    Files.move(tmp,path, StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);
+
+    // LOG.info("read write tmp file: {}",tmp.toFile().getPath());
+    Files.write(tmp, bytes, StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.WRITE,StandardOpenOption.SYNC);
+    // LOG.info("finish write tmp file: {}",tmp.toFile().getPath());
+    Files.move(tmp, path, StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);
   }
 
   public static DataFile of(File file){
