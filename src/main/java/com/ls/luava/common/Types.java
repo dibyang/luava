@@ -469,7 +469,7 @@ public abstract class Types {
     Map<String, Object> target = Maps.newHashMap();
       
     if(mapping==null){
-      mapping=NameMapping.c();
+      mapping=NameMapping.c(source.getClass()).inverse();
     }
 
     objectToMap(source,target,mapping);
@@ -483,7 +483,7 @@ public abstract class Types {
     }
       
     if(mapping==null){
-      mapping=NameMapping.c();
+      mapping=NameMapping.c(targetClass);
     }
     T target = null;
     try {

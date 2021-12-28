@@ -3,6 +3,10 @@ package com.ls.luava.common;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.gson.annotations.SerializedName;
+
+import java.lang.reflect.Field;
+import java.util.List;
 
 public class NameMapping {
   private final BiMap<String, String> mapping = HashBiMap.create();
@@ -38,8 +42,26 @@ public class NameMapping {
     return source;
   }
 
+  public NameMapping inverse(){
+    final NameMapping nameMapping = new NameMapping();
+    nameMapping.mapping.putAll(this.mapping.inverse());
+    return nameMapping;
+  }
+
   public static NameMapping c() {
     return new NameMapping();
+  }
+
+  public static NameMapping c(Class clazz) {
+    final NameMapping nameMapping = new NameMapping();
+    final List<Field> fields = Types.getFields(clazz);
+    for (Field field : fields) {
+      SerializedName serializedName = field.getAnnotation(SerializedName.class);
+      if(serializedName!=null){
+        nameMapping.map(serializedName.value(),field.getName());
+      }
+    }
+    return nameMapping;
   }
 
 }
