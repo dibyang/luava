@@ -43,6 +43,10 @@ public class DataFile {
 
   public byte[] readAllBytes() throws IOException {
     Path path = file.toPath();
+    Path tmp = getTmpPath();
+    if(tmp.toFile().exists()){
+      Files.move(tmp, path, StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);
+    }
     if(file.exists()) {
       return Files.readAllBytes(path);
     }
