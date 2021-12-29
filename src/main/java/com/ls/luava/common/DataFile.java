@@ -44,11 +44,15 @@ public class DataFile {
   public byte[] readAllBytes() throws IOException {
     Path path = file.toPath();
     Path tmp = getTmpPath();
-    if(tmp.toFile().exists()){
-      Files.move(tmp, path, StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);
-    }
+
     if(file.exists()) {
       return Files.readAllBytes(path);
+    }else{
+      if(tmp.toFile().exists()){
+        byte[] bytes = Files.readAllBytes(tmp);
+        Files.write(path, bytes, StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.WRITE,StandardOpenOption.SYNC);
+        return bytes;
+      }
     }
     return null;
   }
