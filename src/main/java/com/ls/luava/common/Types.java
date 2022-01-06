@@ -413,7 +413,7 @@ public abstract class Types {
       mapping=NameMapping.c();
     }
     if(source instanceof Map){
-      target = mapToObject((Map<?, ?>)source, targetClass, mapping);
+      target = mapToObject((Map<String, ?>)source, targetClass, mapping);
     }else if(targetClass == Map.class){
       target=(T)objectToMap(source, mapping);
     }else{
@@ -471,13 +471,16 @@ public abstract class Types {
     if(mapping==null){
       mapping=NameMapping.c(source.getClass()).inverse();
     }
-
-    objectToMap(source,target,mapping);
+    if(source instanceof Map){
+      target.putAll((Map<String, ?>) source);
+    }else {
+      objectToMap(source, target, mapping);
+    }
     return target;
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static <T> T mapToObject(Map<?, ?> source, Class<T> targetClass, NameMapping mapping) {
+  public static <T> T mapToObject(Map<String, ?> source, Class<T> targetClass, NameMapping mapping) {
     if (source == null){
       return null;
     }
@@ -495,8 +498,13 @@ public abstract class Types {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    mapToObject(source, target, mapping);
-    
+
+    if(target instanceof Map){
+      Map<String, Object> map = (Map<String, Object>) target;
+      map.putAll(source);
+    }else {
+      mapToObject(source, target, mapping);
+    }
     return target;
   }
 
