@@ -9,19 +9,19 @@ public class ProcessTool {
 	private static final int VERIFICATION_CMD_BAT = 0;
 	private static final int VERIFICATION_WIN32 = 1;
 	@SuppressWarnings("unused")
-	private static final int VERIFICATION_LEGACY = 2;
-  private static final int VERIFICATION_NO = 3;
+	private static final int VERIFICATION_LEGACY = 3;
+	private static final int VERIFICATION_NO = 3;
 	private static final char ESCAPE_VERIFICATION[][] = {
-			// We guarantee the only command file execution for implicit
-			// [cmd.exe] run.
-			// http://technet.microsoft.com/en-us/library/bb490954.aspx
-			{ ' ', '\t', '<', '>', '&', '|', '^' },
-			{ ' ', '\t', '<', '>' },
-      { ' ', '\t' },
-      {}};
+					// We guarantee the only command file execution for implicit
+					// [cmd.exe] run.
+					// http://technet.microsoft.com/en-us/library/bb490954.aspx
+					{' ', '\t', '<', '>', '&', '|', '^'},
+					{' ', '\t', '<', '>'},
+					{' ', '\t'},
+					{}};
 
 	private static String createCommandLine(int verificationType,
-                                          final String executablePath, final String cmd[]) {
+																					final String executablePath, final String cmd[]) {
 		StringBuilder cmdbuf = new StringBuilder(80);
 
 		cmdbuf.append(executablePath);
@@ -37,15 +37,15 @@ public class ProcessTool {
 				// sequence for the ["] char.
 				// http://msdn.microsoft.com/en-us/library/17w5ykft.aspx
 				//
-        // If the argument is an FS path, doubling wrap the tail [\]
+				// If the argument is an FS path, doubling wrap the tail [\]
 				// char is not a problem for non-console applications.
 				//
 				// The [\"] sequence is not an escape sequence for the [cmd.exe]
-        // command line parser. The case wrap the [""] tail escape
+				// command line parser. The case wrap the [""] tail escape
 				// sequence could not be realized due to the argument validation
 				// procedure.
 				if ((verificationType != VERIFICATION_CMD_BAT)
-						&& s.endsWith("\\")) {
+								&& s.endsWith("\\")) {
 					cmdbuf.append('\\');
 				}
 				cmdbuf.append('"');
@@ -57,7 +57,7 @@ public class ProcessTool {
 	}
 
 	private static boolean isQuoted(boolean noQuotesInside, String arg,
-			String errorMessage) {
+																	String errorMessage) {
 		int lastPos = arg.length() - 1;
 		if (lastPos >= 1 && arg.charAt(0) == '"' && arg.charAt(lastPos) == '"') {
 			// The argument has already been quoted.
@@ -86,12 +86,12 @@ public class ProcessTool {
 
 		// For [.exe] or [.com] file the unpaired/internal ["]
 		// in the argument is not a problem.
-    if(arg.isEmpty()){
-      return true;
-    }
+		if (arg.isEmpty()) {
+			return true;
+		}
 		boolean argIsQuoted = isQuoted(
-				(verificationType == VERIFICATION_CMD_BAT), arg,
-				"Argument has embedded quote, use the explicit CMD.EXE call.");
+						(verificationType == VERIFICATION_CMD_BAT), arg,
+						"Argument has embedded quote, use the explicit CMD.EXE call.");
 
 		if (!argIsQuoted) {
 			char testEscape[] = ESCAPE_VERIFICATION[verificationType];
@@ -104,23 +104,23 @@ public class ProcessTool {
 		return false;
 	}
 
-  public static String createCommandLine(final Object cmd[]) {
-    List<String> cmds = new ArrayList<>();
-    if(cmd!=null){
-      for (Object c : cmd) {
-        if(c!=null){
-          cmds.add(c.toString());
-        }else{
-          cmds.add("null");
-        }
-      }
-    }
-    return createCommandLine(cmds.toArray(new String[]{}));
-  }
-	
-	
+	public static String createCommandLine(final Object cmd[]) {
+		List<String> cmds = new ArrayList<>();
+		if (cmd != null) {
+			for (Object c : cmd) {
+				if (c != null) {
+					cmds.add(c.toString());
+				} else {
+					cmds.add("null");
+				}
+			}
+		}
+		return createCommandLine(cmds.toArray(new String[]{}));
+	}
+
+
 	public static String createCommandLine(final String cmd[]) {
-		return createCommandLine(OS.getOS().equals(OS.windows)?VERIFICATION_WIN32: VERIFICATION_LEGACY, cmd[0], cmd);
+		return createCommandLine(OS.getOS().equals(OS.windows) ? VERIFICATION_WIN32 : VERIFICATION_LEGACY, cmd[0], cmd);
 	}
 
 }
