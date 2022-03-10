@@ -7,13 +7,13 @@ import com.google.gson.TypeAdapterFactory;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
 import com.ls.luava.spi.GsonSpi;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ServiceLoader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 /**
  * Json 工具类
@@ -99,11 +99,21 @@ public enum Jsons {
   }
 
   public static void main(String[] args) {
-    String s = "{\\\"runner\\\": {\\\"name\\\": \\\"loadbalance\\\"}}";
-    s = s.replaceAll("\\\\\"","\"");
+    //String s = "{\\\"runner\\\": {\\\"name\\\": \\\"loadbalance\\\"}}";
+    //s = s.replaceAll("\\\\\"","\"");
+    //System.out.println("s = " + s);
+
+    String s = null;
+    try {
+      s = new String(Files.readAllBytes(Paths.get("d:/test/test.txt")));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     System.out.println("s = " + s);
     N3Map map = Jsons.i.fromJson(s, N3Map.class);
     System.out.println("map = " + map);
+    Optional<byte[]> metaId = map.getValue(byte[].class, "data","meta_id");
+    System.out.println("metaId = " + metaId);
 
   }
 

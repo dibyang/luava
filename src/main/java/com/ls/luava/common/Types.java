@@ -2,6 +2,7 @@ package com.ls.luava.common;
 
 import com.google.common.collect.Maps;
 import com.google.common.io.BaseEncoding;
+import com.ls.luava.security.Base64;
 
 import java.lang.reflect.*;
 import java.math.BigDecimal;
@@ -674,6 +675,11 @@ public abstract class Types {
         }
 
         return (T) array;
+      }
+      if(clazz.getComponentType().equals(byte.class)){
+        if(obj instanceof String){
+          return (T)Base64.decodeString((String)obj);
+        }
       }
     }
 

@@ -17,7 +17,7 @@ public class Base64 {
   }
 
   public static byte[] decodeString(String s) throws RuntimeException {
-    byte[] encoded = encode(s.getBytes());
+    byte[] encoded = decode(s.getBytes());
     return encoded;
   }
 
