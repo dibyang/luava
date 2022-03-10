@@ -14,8 +14,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 /**
- * 
- * 
+ *
+ *
  * @author 杨志坚 Email: dib.yang@gmail.com
  * @since 0.2.0
  */
@@ -42,7 +42,14 @@ public class RSAUtil {
 
   /**
    * 生成密钥对
-   * 
+   */
+  public KeyPair generateKeyPair() {
+    return generateKeyPair(KeySize.K1024);
+  }
+
+  /**
+   * 生成密钥对
+   *
    * @return KeyPair
    */
   public KeyPair generateKeyPair(KeySize keySize) {
@@ -155,6 +162,50 @@ public class RSAUtil {
     return s;
   }
 
+  /**
+   * 获取私钥，返回base64处理后的字符串
+   * @param keyPair
+   * @return
+   */
+  public String getPublicKeyWithBase64(KeyPair keyPair) {
+    byte[] publicKey = keyPair.getPublic().getEncoded();
+    return BaseEncoding.base64().encode(publicKey);
+  }
+
+  /**
+   * 获取公钥，返回base64处理后的字符串
+   * @param keyPair
+   * @return
+   */
+  public String getPrivateKeyWithBase64(KeyPair keyPair) {
+    byte[] privateKey = keyPair.getPrivate().getEncoded();
+    return BaseEncoding.base64().encode(privateKey);
+  }
+
+  /**
+   * 公钥加密
+   *
+   * @param key 密钥
+   * @param data 待加密数据
+   * @return byte[] 加密数据
+   */
+  public String encryptByPublicKey(String key, String data) throws Exception {
+    PublicKey publicKey = getPublicKey(key);
+    return encode(publicKey, data);
+  }
+
+  /**
+   * 私钥解密
+   *
+   * @param key 密钥
+   * @param data 待加密数据
+   * @return byte[] 加密数据
+   */
+  public String decryptByPrivateKey(String key, String data) throws Exception {
+    PrivateKey privateKey = getPrivateKey(key);
+    return decode(privateKey, data);
+  }
+
   public String encode(Key key, String content) throws NoSuchPaddingException, IOException {
     byte[] data = content.getBytes("utf-8");
     return BaseEncoding.base64().encode(encode(key, data));
@@ -207,7 +258,7 @@ public class RSAUtil {
 
   /**
    * BASE64解码，再RSA解密
-   * 
+   *
    * @param key
    * @param content
    * @return String
@@ -261,7 +312,17 @@ public class RSAUtil {
   }
 
   public static void main(String[] args) throws Exception {
+    String password = "admin";
+    RSAUtil rsa = RSAUtil.create();
+    KeyPair keyPair = rsa.generateKeyPair();
+    String gong = rsa.getPublicKeyWithBase64(keyPair);
+    String si = rsa.getPrivateKeyWithBase64(keyPair);
+    String jiami = rsa.encryptByPublicKey(gong, password);
+    String jiemi = rsa.decryptByPrivateKey(si, jiami);
+    System.out.println(jiami);
+    System.out.println(jiemi);
 
+    /*
     RSAUtil rsa = RSAUtil.create();
     // 密钥对
     //KeyPair keyPair = rsa.generateKeyPair(KeySize.K1024);
@@ -312,7 +373,7 @@ public class RSAUtil {
 //    System.out.println(com.google.common.io.BaseEncoding.base64().encode(keyBytes));
 //    byte[] aa=com.google.common.io.BaseEncoding.base64Url().decode(priKey);
 //    System.out.println(keyBytes.equals(aa));
-    
+
     // priKey=keyPair.getPrivateKey();
     // pubKey=keyPair.getPublicKey();
 
@@ -333,6 +394,6 @@ public class RSAUtil {
 //    String f = rsa.decode(keyPair.getPublic(), e);
 //
 //    System.out.println("公钥解密明文：" + f);
-
+    */
   }
 }
