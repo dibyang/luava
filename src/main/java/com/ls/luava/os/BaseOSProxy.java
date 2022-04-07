@@ -6,11 +6,12 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.*;
 
 public abstract class BaseOSProxy implements OSProxy {
   final static Logger LOG = LoggerFactory.getLogger(BaseOSProxy.class);
   static final String line_separator = "\n";
-
+  static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
 
   @Override
@@ -72,40 +73,38 @@ public abstract class BaseOSProxy implements OSProxy {
   @Override
   public CmdResult exec(CmdBuilder cmdBuilde, PreExecute preExecute) {
     CmdResult r = new CmdResult();
-    Process process = null;
     try {
       ProcessBuilder processBuilder = processBuilder(cmdBuilde);
       if (preExecute != null) {
         preExecute.preExecute(processBuilder);
       }
-      process = processBuilder.start();
+      final Process process = processBuilder.start();
       if (process != null) {
-
+        Future<?> err_future = executorService.submit(() -> {
+          try {
+            StringBuilder err = new StringBuilder();
+            try (BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+              String line = null;
+              while ((line = error.readLine()) != null) {
+                err.append(line)
+                        .append(line_separator);
+              }
+            }
+            r.setError(err.toString());
+          } catch (IOException e) {
+            LOG.warn("", e);
+          }
+        });
         StringBuilder buf = new StringBuilder();
-
-        if (cmdBuilde.isReadErr()) {
-          StringBuilder err = new StringBuilder();
-          try (BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-            String line = null;
-            while ((line = error.readLine()) != null) {
-              err.append(line)
-                  .append(line_separator);
-              buf.append(line)
-                  .append(line_separator);
-            }
+        try (BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+          String line = null;
+          while ((line = input.readLine()) != null) {
+            buf.append(line)
+                    .append(line_separator);
           }
-          r.setError(err.toString());
         }
-        if (cmdBuilde.isReadOut()) {
-          try (BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            String line = null;
-            while ((line = input.readLine()) != null) {
-              buf.append(line)
-                  .append(line_separator);
-            }
-          }
-          r.setResult(buf.toString());
-        }
+        r.setResult(buf.toString());
+        err_future.get();
         process.getOutputStream().close();
         int exitVal = process.waitFor();
         r.setStatus(exitVal);
@@ -118,6 +117,10 @@ public abstract class BaseOSProxy implements OSProxy {
       r.setStatus(1);
       r.setError(e.getMessage());
     } catch (InterruptedException e) {
+      LOG.error("", e);
+      r.setStatus(1);
+      r.setError(e.getMessage());
+    } catch (ExecutionException e) {
       LOG.error("", e);
       r.setStatus(1);
       r.setError(e.getMessage());
