@@ -113,6 +113,7 @@ public abstract class BaseOSProxy implements OSProxy {
                     .append(line_separator);
           }
         } catch (IOException e) {
+          LOG.warn("", e);
           r.setStatus(1);
           r.setError(e.getMessage());
         } finally {
