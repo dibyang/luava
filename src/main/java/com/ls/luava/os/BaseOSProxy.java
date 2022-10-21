@@ -1,38 +1,39 @@
 package com.ls.luava.os;
 
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.concurrent.*;
 
 public abstract class BaseOSProxy implements OSProxy {
   final static Logger LOG = LoggerFactory.getLogger(BaseOSProxy.class);
   static final String line_separator = "\n";
-  static final ExecutorService executorService = Executors.newSingleThreadExecutor();
-
+  static final ThreadPoolExecutor executorService = new ThreadPoolExecutor(2, 1, 5L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new BasicThreadFactory.Builder().namingPattern("shell-executor-%d").daemon(true).build(), new ThreadPoolExecutor.CallerRunsPolicy());
 
   @Override
-  public ProcessBuilder processBuilder(CmdBuilder cmdBuilde) throws IOException {
-    String[] cmdarray = getCmdarray(cmdBuilde);
+  public ProcessBuilder processBuilder(CmdBuilder cmdBuilder) throws IOException {
+    String[] cmdArray = getCmdarray(cmdBuilder);
 
-    String cmdline = CmdBuilder.toString(cmdarray);
-    if(cmdBuilde.debug){
+    String cmdline = CmdBuilder.toString(cmdArray);
+    if (cmdBuilder.debug) {
       LOG.info(cmdline);
     }
-    ProcessBuilder processBuilder = new ProcessBuilder(cmdarray);
-    processBuilder.environment().putAll(cmdBuilde.getEnvironment());
-    if(cmdBuilde.debug){
-      LOG.info("environment:{}",processBuilder.environment());
+    ProcessBuilder processBuilder = new ProcessBuilder(cmdArray);
+    processBuilder.environment().putAll(cmdBuilder.getEnvironment());
+    if (cmdBuilder.debug) {
+      LOG.info("environment:{}", processBuilder.environment());
     }
     return processBuilder;
   }
 
-  protected String[] getCmdarray(CmdBuilder cmdBuilde) {
-    String[] cmdarray = cmdBuilde.shell ? new String[]{"/bin/sh", "-c", cmdBuilde.toString()} : cmdBuilde.getCmdArray();
-    return cmdarray;
+  protected String[] getCmdarray(CmdBuilder cmdBuilder) {
+    return cmdBuilder.shell ? new String[]{"/bin/sh", "-c", cmdBuilder.toString()} : cmdBuilder.getCmdArray();
   }
 
   @Override
@@ -41,15 +42,15 @@ public abstract class BaseOSProxy implements OSProxy {
   }
 
   @Override
-  public Process process(CmdBuilder cmdBuilde) {
-    return process(cmdBuilde,null);
+  public Process process(CmdBuilder cmdBuilder) {
+    return process(cmdBuilder, null);
   }
 
   @Override
-  public Process process(CmdBuilder cmdBuilde, PreExecute preExecute) {
+  public Process process(CmdBuilder cmdBuilder, PreExecute preExecute) {
     Process process = null;
     try {
-      ProcessBuilder processBuilder = processBuilder(cmdBuilde);
+      ProcessBuilder processBuilder = processBuilder(cmdBuilder);
       if (preExecute != null) {
         preExecute.preExecute(processBuilder);
       }
@@ -66,61 +67,70 @@ public abstract class BaseOSProxy implements OSProxy {
   }
 
   @Override
-  public CmdResult exec(CmdBuilder cmdBuilde) {
-    return exec(cmdBuilde, null);
+  public CmdResult exec(CmdBuilder cmdBuilder) {
+    return exec(cmdBuilder, null);
   }
 
   @Override
-  public CmdResult exec(CmdBuilder cmdBuilde, PreExecute preExecute) {
+  public CmdResult exec(CmdBuilder cmdBuilder, PreExecute preExecute) {
     CmdResult r = new CmdResult();
     try {
-      ProcessBuilder processBuilder = processBuilder(cmdBuilde);
+      ProcessBuilder processBuilder = processBuilder(cmdBuilder);
       if (preExecute != null) {
         preExecute.preExecute(processBuilder);
       }
       final Process process = processBuilder.start();
-      if (process != null) {
-        Future<?> err_future = executorService.submit(() -> {
-          try {
-            StringBuilder err = new StringBuilder();
-            try (BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-              String line = null;
-              while ((line = error.readLine()) != null) {
-                err.append(line)
-                        .append(line_separator);
-              }
+      List<Callable<Void>> task = Lists.newArrayList();
+      CountDownLatch countDownLatch = new CountDownLatch(2);
+      task.add(() -> {
+        try {
+          StringBuilder err = new StringBuilder();
+          try (BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+            String line;
+            while ((line = error.readLine()) != null) {
+              err.append(line)
+                      .append(line_separator);
             }
-            r.setError(err.toString());
-          } catch (IOException e) {
-            LOG.warn("", e);
           }
-        });
+          r.setError(err.toString());
+
+        } catch (IOException e) {
+          LOG.warn("", e);
+          r.setStatus(1);
+          r.setError(e.getMessage());
+        } finally {
+          countDownLatch.countDown();
+        }
+        return null;
+      });
+
+      task.add(() -> {
         StringBuilder buf = new StringBuilder();
         try (BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-          String line = null;
+          String line;
           while ((line = input.readLine()) != null) {
             buf.append(line)
                     .append(line_separator);
           }
+        } catch (IOException e) {
+          r.setStatus(1);
+          r.setError(e.getMessage());
+        } finally {
+          countDownLatch.countDown();
+          r.setResult(buf.toString());
         }
-        r.setResult(buf.toString());
-        err_future.get();
-        process.getOutputStream().close();
-        int exitVal = process.waitFor();
-        r.setStatus(exitVal);
-        if(cmdBuilde.debug) {
-          LOG.info(r.toString());
-        }
+        return null;
+      });
+
+      executorService.invokeAll(task);
+      countDownLatch.wait();
+      process.getOutputStream().close();
+      int exitVal = process.waitFor();
+      r.setStatus(exitVal);
+      if (cmdBuilder.debug) {
+        LOG.info(r.toString());
       }
-    } catch (IOException e) {
-      LOG.error("", e);
-      r.setStatus(1);
-      r.setError(e.getMessage());
-    } catch (InterruptedException e) {
-      LOG.error("", e);
-      r.setStatus(1);
-      r.setError(e.getMessage());
-    } catch (ExecutionException e) {
+    } catch (IOException | InterruptedException e) {
       LOG.error("", e);
       r.setStatus(1);
       r.setError(e.getMessage());

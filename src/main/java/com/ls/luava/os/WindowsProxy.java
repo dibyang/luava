@@ -8,16 +8,15 @@ import java.io.IOException;
 
 
 public class WindowsProxy extends BaseOSProxy {
-	final static Logger LOG = LoggerFactory.getLogger(WindowsProxy.class);
-	public final static WindowsProxy INSTANCE = new WindowsProxy();
+  final static Logger LOG = LoggerFactory.getLogger(WindowsProxy.class);
+  public final static WindowsProxy INSTANCE = new WindowsProxy();
 
-	public WindowsProxy()
-	{
-	}
+  public WindowsProxy() {
+  }
 
   @Override
-  public ProcessBuilder processBuilder(CmdBuilder cmdBuilde) throws IOException {
-    return super.processBuilder(cmdBuilde);
+  public ProcessBuilder processBuilder(CmdBuilder cmdBuilder) throws IOException {
+    return super.processBuilder(cmdBuilder);
   }
 
   @Override
@@ -26,8 +25,8 @@ public class WindowsProxy extends BaseOSProxy {
   }
 
   @Override
-  protected String[] getCmdarray(CmdBuilder cmdBuilde) {
-    String[] cmdarray = cmdBuilde.shell ? new String[]{"cmd.exe", "/c", cmdBuilde.toString()} : cmdBuilde.getCmdArray();
+  protected String[] getCmdarray(CmdBuilder cmdBuilder) {
+    String[] cmdarray = cmdBuilder.shell ? new String[]{"cmd.exe", "/c", cmdBuilder.toString()} : cmdBuilder.getCmdArray();
     return cmdarray;
   }
 
@@ -48,8 +47,8 @@ public class WindowsProxy extends BaseOSProxy {
   }
 
   @Override
-  public boolean existProcess(String pid){
-    CmdResult exec = execShell("tasklist",  "/FI", "PID eq " + pid);
+  public boolean existProcess(String pid) {
+    CmdResult exec = execShell("tasklist", "/FI", "PID eq " + pid);
     return exec.getResult().contains(pid);
   }
 
