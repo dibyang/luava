@@ -14,7 +14,7 @@ import java.util.concurrent.*;
 public abstract class BaseOSProxy implements OSProxy {
   final static Logger LOG = LoggerFactory.getLogger(BaseOSProxy.class);
   static final String line_separator = "\n";
-  static final ThreadPoolExecutor executorService = new ThreadPoolExecutor(2, 1, 5L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new BasicThreadFactory.Builder().namingPattern("shell-executor-%d").daemon(true).build(), new ThreadPoolExecutor.CallerRunsPolicy());
+  static final ThreadPoolExecutor executorService = new ThreadPoolExecutor(2, 2, 5L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new BasicThreadFactory.Builder().namingPattern("shell-executor-%d").daemon(true).build(), new ThreadPoolExecutor.CallerRunsPolicy());
 
   @Override
   public ProcessBuilder processBuilder(CmdBuilder cmdBuilder) throws IOException {
@@ -124,7 +124,7 @@ public abstract class BaseOSProxy implements OSProxy {
       });
 
       executorService.invokeAll(task);
-      countDownLatch.wait();
+      countDownLatch.await();
       process.getOutputStream().close();
       int exitVal = process.waitFor();
       r.setStatus(exitVal);
