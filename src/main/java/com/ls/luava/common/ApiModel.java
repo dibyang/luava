@@ -24,6 +24,8 @@ public class ApiModel extends N3Map {
     if (t != null) {
       if (t instanceof N2Exception) {
         this.put(ERROR, ((N2Exception) t).getError().getCode());
+      } if (t instanceof N2Error) {
+        this.put(ERROR, ((N2Error) t).getCode());
       } else {
         this.put(ERROR, t.getClass().getSimpleName());
       }

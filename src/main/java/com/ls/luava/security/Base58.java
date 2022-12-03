@@ -229,7 +229,7 @@ public class Base58 {
       UUID id = UUID.randomUUID();
       //System.out.println("oid=" + id);
       String eid = encodeUuid(id);
-      //System.out.println("eid=" + eid);
+      System.out.println("eid=" + eid);
     }
     long offset = System.currentTimeMillis()-time;
     System.out.println("offset = " + offset+"ms");

@@ -6,5 +6,11 @@ package com.ls.luava.common;
  */
 public interface N2Error {
   String getCode();
+
+  /**
+   * 未来将会移除
+   * @return
+   */
+  @Deprecated
   String getMessage();
 }
