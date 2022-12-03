@@ -8,20 +8,19 @@ import java.io.IOException;
 
 
 public class LinuxProxy extends BaseOSProxy {
-	final static Logger LOG = LoggerFactory.getLogger(LinuxProxy.class);
-	public final static LinuxProxy INSTANCE = new LinuxProxy();
+  final static Logger LOG = LoggerFactory.getLogger(LinuxProxy.class);
+  public final static LinuxProxy INSTANCE = new LinuxProxy();
 
-	public LinuxProxy()
-	{
-	}
+  public LinuxProxy() {
+  }
 
   @Override
-  public ProcessBuilder processBuilder(CmdBuilder cmdBuilde) throws IOException {
-    if(cmdBuilde.en) {
-      cmdBuilde.getEnvironment().put("LANG", "en_US.UTF-8");
-      cmdBuilde.getEnvironment().put("LANGUAGE","en_US:en");
+  public ProcessBuilder processBuilder(CmdBuilder cmdBuilder) throws IOException {
+    if (cmdBuilder.en) {
+      cmdBuilder.getEnvironment().put("LANG", "en_US.UTF-8");
+      cmdBuilder.getEnvironment().put("LANGUAGE", "en_US:en");
     }
-    return super.processBuilder(cmdBuilde);
+    return super.processBuilder(cmdBuilder);
   }
 
   @Override
@@ -31,8 +30,8 @@ public class LinuxProxy extends BaseOSProxy {
 
 
   @Override
-  protected String[] getCmdarray(CmdBuilder cmdBuilde) {
-    String[] cmdarray = cmdBuilde.shell ? new String[]{"/bin/sh", "-c", cmdBuilde.toString()} : cmdBuilde.getCmdArray();
+  protected String[] getCmdarray(CmdBuilder cmdBuilder) {
+    String[] cmdarray = cmdBuilder.shell ? new String[]{"/bin/sh", "-c", cmdBuilder.toString()} : cmdBuilder.getCmdArray();
     return cmdarray;
   }
 
@@ -59,7 +58,7 @@ public class LinuxProxy extends BaseOSProxy {
   }
 
   @Override
-  public boolean existProcess(String pid){
+  public boolean existProcess(String pid) {
     CmdResult exec = execShell("ps", "aux", "|awk '{print $2}'", "|grep", "-w", pid);
     return exec.getResult().contains(pid);
   }
