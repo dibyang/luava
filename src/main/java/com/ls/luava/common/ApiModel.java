@@ -10,6 +10,7 @@ public class ApiModel extends N3Map {
   public static final long serialVersionUID = 1L;
   public static final String ERROR = "error";
   public static final String ERROR_MESSAGE = "error_message";
+  public static final String ERROR_DATA = "error_data";
   public static final String DATA = "data";
 
 
@@ -28,6 +29,9 @@ public class ApiModel extends N3Map {
         this.put(ERROR, ((N2Error) t).getCode());
       } else {
         this.put(ERROR, t.getClass().getSimpleName());
+      }
+      if (t instanceof ErrorData) {
+        this.put(ERROR_DATA, ((ErrorData) t).getData());
       }
       this.put(ERROR_MESSAGE, t.getMessage());
     } else {

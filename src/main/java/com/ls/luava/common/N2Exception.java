@@ -8,7 +8,7 @@ import com.google.common.base.Joiner;
  * @Author 我是郑同学呀
  * @Date 2021/7/3 13:55
  */
-public class N2Exception extends RuntimeException implements N2Error {
+public class N2Exception extends RuntimeException implements N2Error,ErrorData {
   private final N2Error error;
 
   private Object[] data;
@@ -26,7 +26,7 @@ public class N2Exception extends RuntimeException implements N2Error {
   }
 
   public N2Exception(N2Error err, Throwable cause, Object... args) {
-    super(Joiner.on(",").join(args), cause);
+    super(cause);
     this.error = err;
   }
 
@@ -40,7 +40,7 @@ public class N2Exception extends RuntimeException implements N2Error {
 
   @Override
   public String getMessage() {
-    return super.getMessage();
+    return error.getCode();
   }
 
   public static N2Exception c(N2Error err, Throwable cause, Object... args) {

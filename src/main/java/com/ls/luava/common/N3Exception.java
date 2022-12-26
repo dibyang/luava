@@ -1,8 +1,6 @@
 package com.ls.luava.common;
 
-import com.google.common.base.Joiner;
-
-public class N3Exception extends Exception implements N2Error{
+public class N3Exception extends Exception implements N2Error, ErrorData{
   private final N2Error error;
 
   private Object[] data;
@@ -20,8 +18,9 @@ public class N3Exception extends Exception implements N2Error{
   }
 
   public N3Exception(N2Error err, Throwable cause, Object... args) {
-    super(Joiner.on(",").join(args), cause);
+    super(cause);
     this.error = err;
+    this.data = args;
   }
 
   public Object[] getData() {
@@ -34,7 +33,7 @@ public class N3Exception extends Exception implements N2Error{
 
   @Override
   public String getMessage() {
-    return super.getMessage();
+    return error.getCode();
   }
 
   public static N3Exception c(N2Error err, Throwable cause, Object... args) {
