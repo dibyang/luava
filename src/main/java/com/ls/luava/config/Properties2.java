@@ -10,6 +10,10 @@ public class Properties2 extends SafeProperties{
         return Types2.cast(getProperty(key), targetClass);
     }
 
+    public  Optional<String> getString(String key) {
+        return Types2.cast(getProperty(key), String.class);
+    }
+
     public  Optional<Integer> getInt(String key) {
         return Types2.cast(getProperty(key), Integer.class);
     }
