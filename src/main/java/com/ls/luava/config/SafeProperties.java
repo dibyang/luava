@@ -31,11 +31,21 @@ public class SafeProperties extends Properties {
     return context;
   }
 
-  public synchronized void load(InputStream inStream) throws IOException {
+  public synchronized void load(File file) throws IOException {
+    try (FileInputStream in = new FileInputStream(file)){
+      load(in);
+    }
+  }
 
+  public synchronized void load(InputStream inStream) throws IOException {
+    load(new InputStreamReader(inStream, "8859_1"));
+  }
+
+  @Override
+  public synchronized void load(Reader reader) throws IOException {
     BufferedReader in;
 
-    in = new BufferedReader(new InputStreamReader(inStream, "8859_1"));
+    in = new BufferedReader(reader);
     while (true) {
       // Get next line
       String line = in.readLine();
@@ -204,11 +214,33 @@ public class SafeProperties extends Properties {
     return outBuffer.toString();
   }
 
+
+
+  @Override
+  public synchronized void save(OutputStream out, String comments) {
+    try {
+      store(out, comments);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public synchronized void store(File file, String header) throws IOException {
+    try(FileOutputStream out = new FileOutputStream(file)){
+      store(out,header);
+    }
+  }
+
   public synchronized void store(OutputStream out, String header) throws IOException {
+    store(new OutputStreamWriter(out, "8859_1"),header);
+  }
+
+  @Override
+  public synchronized void store(Writer writer, String comments) throws IOException {
     BufferedWriter awriter;
-    awriter = new BufferedWriter(new OutputStreamWriter(out, "8859_1"));
-    if (header != null)
-      writeln(awriter, "#" + header);
+    awriter = new BufferedWriter(writer);
+    if (comments != null)
+      writeln(awriter, "#" + comments);
     List entrys = context.getCommentOrEntrys();
     for (Iterator iter = entrys.iterator(); iter.hasNext();) {
       Object obj = iter.next();

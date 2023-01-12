@@ -34,5 +34,12 @@ public class Properties2 extends SafeProperties{
         return Types2.cast(getProperty(key), Boolean.class);
     }
 
+    public void setValue(String key, Object value){
+        this.put(key,value);
+    }
+
+    public void setValue(String key, Object value, String line){
+        this.put(key, value, line);
+    }
 
 }
