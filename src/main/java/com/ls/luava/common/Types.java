@@ -393,6 +393,12 @@ public abstract class Types {
         return Boolean.FALSE;
       }
 
+      if ("yes".equalsIgnoreCase(str)) {
+        return Boolean.TRUE;
+      }
+      if ("no".equalsIgnoreCase(str)) {
+        return Boolean.FALSE;
+      }
       if ("1".equals(str)) {
         return Boolean.TRUE;
       }

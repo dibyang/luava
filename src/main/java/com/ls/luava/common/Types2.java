@@ -1,7 +1,5 @@
 package com.ls.luava.common;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,7 +12,7 @@ public abstract class Types2 {
   public static final <T> Optional<T> cast(Object value, Class<T> targetClass, NameMapping mapping) {
     try {
       return Optional.ofNullable(Types.cast(value,targetClass,mapping));
-    } catch (Exception e) {
+    } catch (CastException e) {
       //
     }
     return Optional.empty();
@@ -24,6 +22,7 @@ public abstract class Types2 {
   public static final <T> Optional<T> cast(Object value, Class<T> targetClass) {
     return cast(value,targetClass,null);
   }
+
 
   public static void main(String[] args) {
     UUID uid = UUID.randomUUID();
@@ -40,6 +39,9 @@ public abstract class Types2 {
     final UUID uuid = map2.getUUID("tid").orElse(null);
     System.out.println("uuid = " + uuid);
     System.out.println("uid.equals(uuid) = " + uid.equals(uuid));
+
+    Boolean b1 = Types2.cast("Yes", Boolean.class).orElse(false);
+    System.out.println("b1 = " + b1);
 
   }
 }
