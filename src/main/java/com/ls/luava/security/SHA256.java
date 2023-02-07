@@ -5,7 +5,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class SHA256 {
+public abstract class SHA256 {
+
+  public static final String SHA_256 = "SHA-256";
+
   public static String sha256String(String data) {
     String s = "";
     byte[] bytes = sha256(data.getBytes(StandardCharsets.UTF_8));
@@ -31,7 +34,7 @@ public class SHA256 {
   public static byte[] sha256(byte[] data) {
     MessageDigest messageDigest;
     try {
-      messageDigest = MessageDigest.getInstance("SHA-256");
+      messageDigest = MessageDigest.getInstance(SHA_256);
       messageDigest.update(data);
       return messageDigest.digest();
     } catch (NoSuchAlgorithmException e) {
