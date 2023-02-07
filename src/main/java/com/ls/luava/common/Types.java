@@ -1,5 +1,6 @@
 package com.ls.luava.common;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.io.BaseEncoding;
 import com.ls.luava.security.Base64;
@@ -758,6 +759,10 @@ public abstract class Types {
       return (T) castToEnum(obj, clazz);
     }
 
+    if(clazz == Size.class){
+      return (T) castSize(obj);
+    }
+
     if (Calendar.class.isAssignableFrom(clazz)) {
       Date date = castToDate(obj);
       Calendar calendar;
@@ -783,6 +788,11 @@ public abstract class Types {
 
     throw new CastException(clazz, obj);
   }
+
+  private static Size castSize(Object obj) {
+    return Size.parse(obj!=null?obj.toString():null);
+  }
+
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   public static final <T> T castToEnum(Object obj, Class<T> clazz) {
