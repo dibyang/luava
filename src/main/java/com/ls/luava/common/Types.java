@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.io.BaseEncoding;
 import com.ls.luava.security.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.*;
 import java.math.BigDecimal;
@@ -14,6 +16,7 @@ import java.util.*;
 
 public abstract class Types {
   public static String DEFFAULT_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+  static final Logger LOG = LoggerFactory.getLogger(Types.class);
 
   public static final String castToString(Object value) {
     if (value == null) {
@@ -464,11 +467,9 @@ public abstract class Types {
           target.put(name, value);
         }
       } catch (IllegalArgumentException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        LOG.info("",e);
       } catch (IllegalAccessException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        LOG.info("",e);
       }
 
     }
@@ -500,11 +501,9 @@ public abstract class Types {
     try {
       target = targetClass.newInstance();
     } catch (InstantiationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOG.info("",e);
     } catch (IllegalAccessException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      LOG.info("",e);
     }
 
     if(target instanceof Map){
@@ -560,9 +559,9 @@ public abstract class Types {
                 }
 
               } catch (IllegalArgumentException e) {
-                e.printStackTrace();
+                LOG.info("",e);
               } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                LOG.info("",e);
               }
             }
           }else if(Map.class.isAssignableFrom(field.getType())){
@@ -585,9 +584,9 @@ public abstract class Types {
                 }
                 c.putAll((Map)cast(source.get(name), field.getType()));
               } catch (IllegalArgumentException e) {
-                e.printStackTrace();
+                LOG.info("",e);
               } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                LOG.info("",e);
               }
             }
           }else{
@@ -599,7 +598,7 @@ public abstract class Types {
                 final Object o = field.get(target);
                 castObject(o1,o,mapping);
               } catch (IllegalAccessException e) {
-                e.printStackTrace();
+                LOG.info("",e);
               }
             }
           }
@@ -608,11 +607,18 @@ public abstract class Types {
           if (source.containsKey(name)) {
             field.setAccessible(true);
             try {
-              field.set(target, cast(source.get(name), field.getType()));
+              Object value = cast(source.get(name), field.getType());
+              if(field.getType().isPrimitive()) {
+                if(value!=null){
+                  field.set(target, value);
+                }
+              }else{
+                field.set(target, value);
+              }
             } catch (IllegalArgumentException e) {
-              e.printStackTrace();
+              LOG.info("",e);
             } catch (IllegalAccessException e) {
-              e.printStackTrace();
+              LOG.info("",e);
             }
           }
         }
