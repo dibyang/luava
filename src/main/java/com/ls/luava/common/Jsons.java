@@ -38,24 +38,6 @@ public enum Jsons {
       sels.next().build(builder);
     }
     gson = builder.create();
-    try {
-      Field factories = Gson.class.getDeclaredField("factories");
-      factories.setAccessible(true);
-      Object o = factories.get(gson);
-      Class<?>[] declaredClasses = Collections.class.getDeclaredClasses();
-      for (Class c : declaredClasses) {
-        if ("java.util.Collections$UnmodifiableList".equals(c.getName())) {
-          Field listField = c.getDeclaredField("list");
-          listField.setAccessible(true);
-          List<TypeAdapterFactory> list = (List<TypeAdapterFactory>) listField.get(o);
-          int i = list.indexOf(ObjectTypeAdapter.FACTORY);
-          list.set(i, ObjectTypeAdapter2.FACTORY);
-          break;
-        }
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
   }
 
   public Gson getGson() {
