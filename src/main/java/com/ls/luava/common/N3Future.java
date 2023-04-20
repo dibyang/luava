@@ -30,7 +30,7 @@ public class N3Future<T> implements Future<T> {
   }
 
   public void resetStartTime() {
-    startTime = TimeHelper.i.getTime();
+    startTime = System.nanoTime();
   }
 
   @Override
@@ -95,9 +95,9 @@ public class N3Future<T> implements Future<T> {
         if (this.completed) {
           return getResult();
         } else {
-          waitTime = msecs - (TimeHelper.i.getTime() - startTime);
+          waitTime = msecs - TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
           if (waitTime <= 0) {
-            throw new TimeoutException();
+            throw TimeoutValueException.fromMilliseconds(msecs,msecs + Math.abs(waitTime));
           }
         }
       }
