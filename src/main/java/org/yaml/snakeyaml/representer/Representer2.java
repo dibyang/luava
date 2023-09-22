@@ -29,9 +29,6 @@ import java.util.Set;
  * @author admin
  */
 public class Representer2 extends Representer {
-  public Representer2() {
-    super();
-  }
 
   public Representer2(DumperOptions options) {
     super(options);

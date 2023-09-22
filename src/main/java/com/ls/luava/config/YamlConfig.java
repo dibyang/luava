@@ -5,6 +5,7 @@ import com.ls.luava.common.N3Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
@@ -41,8 +42,8 @@ public class YamlConfig  {
     dumperOptions.setAllowReadOnlyProperties(true);
     Representer2 representer = new Representer2(dumperOptions);
     representer.getPropertyUtils().setSkipMissingProperties(true);
-
-    yaml = new Yaml(new Constructor(),representer,dumperOptions);
+    LoaderOptions loaderOptions = new LoaderOptions();
+    yaml = new Yaml(new Constructor(loaderOptions),representer,dumperOptions);
     yaml.setBeanAccess(BeanAccess.FIELD);
   }
 
