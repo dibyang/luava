@@ -13,7 +13,7 @@ public class Cache4Time<T> {
   private volatile long lastTime = 0;
   private final Supplier<T> supplier;
   /**
-   * 缓存周期，单位毫秒
+   * 缓存时间，单位毫秒
    */
   private volatile long lifeTime = DEFAULT_LIFE_TIME;
   private T data = null;
@@ -22,18 +22,43 @@ public class Cache4Time<T> {
    * 是否使用访问时间模式
    */
   private boolean accessTime = false;
-  
+
+  /**
+   *
+   * @param supplier 数据获取接口
+   */
   public Cache4Time(Supplier<T> supplier) {
     this(supplier,DEFAULT_LIFE_TIME);
   }
-  
+
+  /**
+   *
+   * @param supplier 数据获取接口
+   * @param lifeTime 缓存时间，单位毫秒
+   */
   public Cache4Time(Supplier<T> supplier, long lifeTime) {
     this.supplier = supplier;
     this.lifeTime = lifeTime;
   }
 
   /**
-   * 缓存周期，单位毫秒
+   * 是否使用访问时间模式
+   */
+  public boolean isAccessTime() {
+    return accessTime;
+  }
+
+  /**
+   * 设置是否使用访问时间模式
+   * @param accessTime 是否使用访问时间模式
+   */
+  public Cache4Time setAccessTime(boolean accessTime) {
+    this.accessTime = accessTime;
+    return this;
+  }
+
+  /**
+   * 缓存时间，单位毫秒
    * @return
    */
   public long getLifeTime() {
@@ -42,8 +67,8 @@ public class Cache4Time<T> {
 
 
   /**
-   * 缓存周期，单位毫秒
-   * @param ms
+   * 缓存时间，单位毫秒
+   * @param ms 缓存时间，单位毫秒
    */
   public void setLifeTime(long ms) {
     this.lifeTime = ms;
@@ -79,12 +104,20 @@ public class Cache4Time<T> {
     }
     return false;
   }
-  
+
+  /**
+   *
+   * @param supplier 数据获取接口
+   */
   public static <T> Cache4Time<T> of(Supplier<T> supplier){
     return of(supplier, DEFAULT_LIFE_TIME);
   }
-  
-  
+
+  /**
+   *
+   * @param supplier 数据获取接口
+   * @param lifeTime 缓存时间，单位毫秒
+   */
   public static <T> Cache4Time<T> of(Supplier<T> supplier, long lifeTime){
     return new Cache4Time<T>(supplier, lifeTime);
   }
