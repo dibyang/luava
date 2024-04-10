@@ -1,6 +1,8 @@
 package com.ls.luava.common.cache;
 
 
+import com.google.common.base.Preconditions;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -37,6 +39,7 @@ public class Cache4Time<T> {
    * @param lifeTime 缓存时间，单位毫秒
    */
   public Cache4Time(Supplier<T> supplier, long lifeTime) {
+    Preconditions.checkNotNull(supplier);
     this.supplier = supplier;
     this.lifeTime = lifeTime;
   }
@@ -94,6 +97,14 @@ public class Cache4Time<T> {
   public synchronized Cache4Time<T> expired() {
     lastTime = 0;
     return this;
+  }
+
+  /**
+   * 获取数据获取或访问的nano时间戳
+   * @return
+   */
+  public long getLastTime() {
+    return lastTime;
   }
 
   public boolean isExpired() {
