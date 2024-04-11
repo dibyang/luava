@@ -4,6 +4,7 @@ package com.ls.luava.common.cache;
 import com.google.common.base.Preconditions;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
@@ -13,7 +14,7 @@ public class Cache4Time<T> {
    */
   static final long DEFAULT_LIFE_TIME = 60*60*1000;
   private volatile long lastTime = 0;
-  private final Supplier<T> supplier;
+  private final Supplier<CompletableFuture<T>> supplier;
   /**
    * 缓存时间，单位毫秒
    */
@@ -29,7 +30,7 @@ public class Cache4Time<T> {
    *
    * @param supplier 数据获取接口
    */
-  public Cache4Time(Supplier<T> supplier) {
+  public Cache4Time(Supplier<CompletableFuture<T>> supplier) {
     this(supplier,DEFAULT_LIFE_TIME);
   }
 
@@ -38,7 +39,7 @@ public class Cache4Time<T> {
    * @param supplier 数据获取接口
    * @param lifeTime 缓存时间，单位毫秒
    */
-  public Cache4Time(Supplier<T> supplier, long lifeTime) {
+  public Cache4Time(Supplier<CompletableFuture<T>> supplier, long lifeTime) {
     Preconditions.checkNotNull(supplier);
     this.supplier = supplier;
     this.lifeTime = lifeTime;
@@ -79,19 +80,33 @@ public class Cache4Time<T> {
 
   
   public synchronized T getData(){
-    if(isExpired())
-    {
-      data = this.supplier.get();
-      lastTime = System.nanoTime();
-    }else if(accessTime){
-      lastTime = System.nanoTime();
+    CompletableFuture<T> future = this.supplier.get();
+    try {
+      future.get();
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    } catch (ExecutionException e) {
+      throw new RuntimeException(e.getCause());
     }
     return data;
   }
 
   public synchronized CompletableFuture<T> getAsyncData(){
-    CompletableFuture<T> future = CompletableFuture.supplyAsync(()->getData());
-    return future;
+    if(isExpired()) {
+      CompletableFuture<T> future = this.supplier.get();
+      future.thenAccept(r->{
+        this.data = r;
+        this.lastTime = System.nanoTime();
+      });
+      return future;
+    }else{
+      CompletableFuture<T> future = new CompletableFuture<>();
+      future.complete(data);
+      if(accessTime){
+        lastTime = System.nanoTime();
+      }
+      return future;
+    }
   }
 
   public synchronized Cache4Time<T> expired() {
@@ -130,7 +145,25 @@ public class Cache4Time<T> {
    * @param lifeTime 缓存时间，单位毫秒
    */
   public static <T> Cache4Time<T> of(Supplier<T> supplier, long lifeTime){
+    return new Cache4Time<T>(()->CompletableFuture.supplyAsync(supplier), lifeTime);
+  }
+
+  /**
+   *
+   * @param supplier 异步获取数据接口
+   */
+  public static <T> Cache4Time<T> ofAsync(Supplier<CompletableFuture<T>> supplier){
+    return ofAsync(supplier, DEFAULT_LIFE_TIME);
+  }
+
+  /**
+   *
+   * @param supplier 异步获取数据接口
+   * @param lifeTime 缓存时间，单位毫秒
+   */
+  public static <T> Cache4Time<T> ofAsync(Supplier<CompletableFuture<T>> supplier, long lifeTime){
     return new Cache4Time<T>(supplier, lifeTime);
   }
-  
+
+
 }
