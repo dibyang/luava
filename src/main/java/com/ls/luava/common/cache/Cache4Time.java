@@ -131,37 +131,21 @@ public class Cache4Time<T> {
     return false;
   }
 
+
   /**
    *
-   * @param supplier 数据获取接口
+   * @param supplier 异步获取数据接口
    */
-  public static <T> Cache4Time<T> of(Supplier<T> supplier){
+  public static <T> Cache4Time<T> of(Supplier<CompletableFuture<T>> supplier){
     return of(supplier, DEFAULT_LIFE_TIME);
   }
 
   /**
    *
-   * @param supplier 数据获取接口
-   * @param lifeTime 缓存时间，单位毫秒
-   */
-  public static <T> Cache4Time<T> of(Supplier<T> supplier, long lifeTime){
-    return new Cache4Time<T>(()->CompletableFuture.supplyAsync(supplier), lifeTime);
-  }
-
-  /**
-   *
-   * @param supplier 异步获取数据接口
-   */
-  public static <T> Cache4Time<T> ofAsync(Supplier<CompletableFuture<T>> supplier){
-    return ofAsync(supplier, DEFAULT_LIFE_TIME);
-  }
-
-  /**
-   *
    * @param supplier 异步获取数据接口
    * @param lifeTime 缓存时间，单位毫秒
    */
-  public static <T> Cache4Time<T> ofAsync(Supplier<CompletableFuture<T>> supplier, long lifeTime){
+  public static <T> Cache4Time<T> of(Supplier<CompletableFuture<T>> supplier, long lifeTime){
     return new Cache4Time<T>(supplier, lifeTime);
   }
 
