@@ -1,9 +1,6 @@
 package com.ls.luava.common;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.TypeAdapterFactory;
+import com.google.gson.*;
 import com.google.gson.internal.bind.ObjectTypeAdapter;
 import com.ls.luava.spi.GsonSpi;
 
@@ -27,11 +24,12 @@ public enum Jsons {
   Jsons() {
     GsonBuilder builder = new GsonBuilder();
     builder
-      .registerTypeAdapter(Unit.class,UnitTypeAdapter.UNIT)
-      .registerTypeAdapter(Size.class,SizeTypeAdapter.SIZE)
-      //.setDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
-      //.registerTypeAdapter(N3Map.class,new N3MapDeserializer())
-      .setPrettyPrinting();
+        .registerTypeAdapter(Unit.class, UnitTypeAdapter.UNIT)
+        .registerTypeAdapter(Size.class, SizeTypeAdapter.SIZE)
+        .setObjectToNumberStrategy(ToNumberPolicy.BIG_DECIMAL)
+        //.setDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+        //.registerTypeAdapter(N3Map.class,new N3MapDeserializer())
+        .setPrettyPrinting();
     ServiceLoader<GsonSpi> serviceLoader = ServiceLoader.load(GsonSpi.class);
     Iterator<GsonSpi> sels = serviceLoader.iterator();
     while (sels.hasNext()) {
