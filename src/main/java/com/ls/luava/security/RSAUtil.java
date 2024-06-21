@@ -1,12 +1,15 @@
 package com.ls.luava.security;
 
 import com.google.common.io.BaseEncoding;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.crypto.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -20,6 +23,7 @@ import java.security.spec.X509EncodedKeySpec;
  * @since 0.2.0
  */
 public class RSAUtil {
+  static final Logger LOG = LoggerFactory.getLogger(RSAUtil.class);
 
   public static final String BEGIN_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----";
   public static final String END_PUBLIC_KEY = "-----END PUBLIC KEY-----";
@@ -44,7 +48,7 @@ public class RSAUtil {
    * 生成密钥对
    */
   public KeyPair generateKeyPair() {
-    return generateKeyPair(KeySize.K1024);
+    return generateKeyPair(2048);
   }
 
   /**
@@ -52,39 +56,16 @@ public class RSAUtil {
    *
    * @return KeyPair
    */
-  public KeyPair generateKeyPair(KeySize keySize) {
+  public KeyPair generateKeyPair(int keySize) {
     KeyPair keyPair = null;
     try {
       KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(ALGORITHM);
       // 密钥位数
-      keyPairGen.initialize(keySize.KEY_SIZE);
+      keyPairGen.initialize(keySize);
       // 密钥对
       keyPair = keyPairGen.generateKeyPair();
 
-      // // 公钥
-      // RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-      //
-      // System.out.println("Public m===>" +new
-      // String(Hex.encodeHex(publicKey.getModulus().toByteArray())));
-      // System.out.println("Public e===>" +new
-      // String(Hex.encodeHex(publicKey.getPublicExponent().toByteArray())));
-      //
-      //
-      // // 私钥
-      // RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-      //
-      // System.out.println("Private m===>" +new
-      // String(Hex.encodeHex(privateKey.getModulus().toByteArray())));
-      // System.out.println("Private p===>" +new
-      // String(Hex.encodeHex(privateKey.getPrivateExponent().toByteArray())));
-      //
-      //
-      // String publicKeyString = getKeyString(publicKey);
-      // System.out.println("Public KEY===>" + publicKeyString);
-      //
-      //
-      // String privateKeyString = getKeyString(privateKey);
-      // System.out.println("Private KEY===>" + privateKeyString);
+
 
     } catch (Exception e) {
       System.err.println("Exception:" + e.getMessage());
@@ -92,34 +73,34 @@ public class RSAUtil {
     return keyPair;
   }
 
-  public KeySize getKeySize(Key key) {
+  public int getKeySize(Key key) {
     if (key instanceof PrivateKey) {
       return getKeySize((PrivateKey) key);
     }
     if (key instanceof PublicKey) {
       return getKeySize((PublicKey) key);
     }
-    return null;
+    return 0;
   }
 
-  public KeySize getKeySize(PrivateKey key) {
+  public int getKeySize(PrivateKey key) {
     String algorithm = key.getAlgorithm(); // 获取算法
     BigInteger prime = null;
     if (ALGORITHM.equals(algorithm)) { // 如果是RSA加密
       RSAPrivateKey keySpec = (RSAPrivateKey) key;
       prime = keySpec.getModulus();
     }
-    return KeySize.getKeySize(prime.toString(2).length());
+    return prime.toString(2).length();
   }
 
-  public KeySize getKeySize(PublicKey key) {
+  public int getKeySize(PublicKey key) {
     String algorithm = key.getAlgorithm(); // 获取算法
     BigInteger prime = null;
     if (ALGORITHM.equals(algorithm)) { // 如果是RSA加密
       RSAPublicKey keySpec = (RSAPublicKey) key;
       prime = keySpec.getModulus();
     }
-    return KeySize.getKeySize(prime.toString(2).length());
+    return prime.toString(2).length();
   }
 
   public PublicKey getPublicKey(String key) throws Exception {
@@ -129,8 +110,7 @@ public class RSAUtil {
 
     X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
     KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
-    PublicKey publicKey = keyFactory.generatePublic(keySpec);
-    return publicKey;
+    return keyFactory.generatePublic(keySpec);
   }
 
   private String getKey(String key,String begin,String end) {
@@ -141,7 +121,8 @@ public class RSAUtil {
     if(index>0){
       key = key.substring(0,index);
     }
-    key = key.replaceAll("\n","");
+    key = key.replaceAll("\n","")
+        .replaceAll("\r","");
     return key;
   }
 
@@ -152,14 +133,12 @@ public class RSAUtil {
 
     PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
     KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
-    PrivateKey privateKey = keyFactory.generatePrivate(keySpec);
-    return privateKey;
+    return keyFactory.generatePrivate(keySpec);
   }
 
   public String getKeyString(Key key) throws Exception {
     byte[] keyBytes = key.getEncoded();
-    String s = BaseEncoding.base64().encode(keyBytes);
-    return s;
+    return BaseEncoding.base64().encode(keyBytes);
   }
 
   /**
@@ -206,53 +185,52 @@ public class RSAUtil {
     return decode(privateKey, data);
   }
 
+  /**
+   * 私钥加密
+   *
+   * @param key 密钥
+   * @param data 待加密数据
+   * @return byte[] 加密数据
+   */
+  public String encryptByPrivateKey(String key, String data) throws Exception {
+    PrivateKey privateKey = getPrivateKey(key);
+    return encode(privateKey, data);
+  }
+
+  /**
+   * 公钥解密
+   *
+   * @param key 密钥
+   * @param data 待加密数据
+   * @return byte[] 加密数据
+   */
+  public String decryptByPublicKey(String key, String data) throws Exception {
+    PublicKey publicKey = getPublicKey(key);
+    return decode(publicKey, data);
+  }
+
   public String encode(Key key, String content) throws NoSuchPaddingException, IOException {
     byte[] data = content.getBytes("utf-8");
     return BaseEncoding.base64().encode(encode(key, data));
   }
 
   public byte[] encode(Key key, byte[] data) throws NoSuchPaddingException, IOException {
-    KeySize keySize = this.getKeySize(key);
     try {
       rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1PADDING");
     } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-    } catch (NoSuchPaddingException e) {
-      e.printStackTrace();
-      throw e;
+      LOG.warn("", e);
     }
     try {
       rsaCipher.init(Cipher.ENCRYPT_MODE, key, secrand);
-
-      int blocks = data.length / keySize.BLOCK_SIZE;
-      int lastBlockSize = data.length % keySize.BLOCK_SIZE;
-      byte[] encryptedData = new byte[(lastBlockSize == 0 ? blocks : blocks + 1)
-          * keySize.OUTPUT_BLOCK_SIZE];
-      for (int i = 0; i < blocks; i++) {
-        rsaCipher.doFinal(data, i * keySize.BLOCK_SIZE, keySize.BLOCK_SIZE, encryptedData, i
-            * keySize.OUTPUT_BLOCK_SIZE);
-      }
-      if (lastBlockSize != 0) {
-        rsaCipher.doFinal(data, blocks * keySize.BLOCK_SIZE, lastBlockSize, encryptedData, blocks
-            * keySize.OUTPUT_BLOCK_SIZE);
-      }
-
-      return encryptedData;
+      return rsaCipher.doFinal(data);
 
     } catch (InvalidKeyException e) {
-      e.printStackTrace();
-      throw new IOException("InvalidKey");
-    } catch (ShortBufferException e) {
-      e.printStackTrace();
-      throw new IOException("ShortBuffer");
-    } catch (IllegalBlockSizeException e) {
-      e.printStackTrace();
-      throw new IOException("IllegalBlockSize");
+      throw new IOException("InvalidKey", e);
+    }
+    catch (IllegalBlockSizeException e) {
+      throw new IOException("IllegalBlockSize", e);
     } catch (BadPaddingException e) {
-      e.printStackTrace();
-      throw new IOException("BadPadding");
-    } finally {
-
+      throw new IOException("BadPadding", e);
     }
   }
 
@@ -270,44 +248,29 @@ public class RSAUtil {
     try {
       data = BaseEncoding.base64().decode(content);
     } catch (Exception e1) {
-      e1.printStackTrace();
+      LOG.warn("", e1);
     }
-    return new String(decode(key, data), "UTF-8");
+    return new String(decode(key, data), StandardCharsets.UTF_8);
   }
 
   public byte[] decode(Key key, byte[] data) throws NoSuchPaddingException, IOException {
-    KeySize keySize = this.getKeySize(key);
+
     try {
       rsaCipher = Cipher.getInstance("RSA/ECB/PKCS1PADDING");
     } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-    } catch (NoSuchPaddingException e) {
-      e.printStackTrace();
-      throw e;
+      LOG.warn("", e);
     }
     try {
       rsaCipher.init(Cipher.DECRYPT_MODE, key, secrand);
-      int blocks = data.length / keySize.OUTPUT_BLOCK_SIZE;
-      ByteArrayOutputStream decodedStream = new ByteArrayOutputStream(data.length);
-      for (int i = 0; i < blocks; i++) {
-        decodedStream.write(rsaCipher.doFinal(data, i * keySize.OUTPUT_BLOCK_SIZE,
-            keySize.OUTPUT_BLOCK_SIZE));
-      }
-      return decodedStream.toByteArray();
-    } catch (InvalidKeyException e) {
-      e.printStackTrace();
-      throw new IOException("InvalidKey");
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
-      throw new IOException("UnsupportedEncoding");
-    } catch (IllegalBlockSizeException e) {
-      e.printStackTrace();
-      throw new IOException("IllegalBlockSize");
-    } catch (BadPaddingException e) {
-      e.printStackTrace();
-      throw new IOException("BadPadding");
-    } finally {
 
+      return rsaCipher.doFinal(data);
+    } catch (InvalidKeyException e) {
+      throw new IOException("InvalidKey", e);
+    }
+    catch (IllegalBlockSizeException e) {
+      throw new IOException("IllegalBlockSize", e);
+    } catch (BadPaddingException e) {
+      throw new IOException("BadPadding", e);
     }
   }
 
