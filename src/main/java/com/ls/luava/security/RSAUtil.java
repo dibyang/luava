@@ -5,9 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.crypto.*;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
@@ -29,10 +27,12 @@ public class RSAUtil {
   public static final String END_PUBLIC_KEY = "-----END PUBLIC KEY-----";
   public static final String BEGIN_PRIVATE_KEY = "-----BEGIN PRIVATE KEY-----";
   public static final String END_PRIVATE_KEY = "-----END PRIVATE KEY-----";
+  public static final String SHA256_WITH_RSA = "SHA256withRSA";
+  public static final String MD5_WITH_RSA = "MD5withRSA";
   private SecureRandom secrand = new SecureRandom();
   public Cipher rsaCipher;
 
-  final String ALGORITHM = "RSA";// RSA、RSA/ECB/PKCS1Padding
+  public static final String RSA = "RSA";// RSA、RSA/ECB/PKCS1Padding
 
   // public static String
   // Algorithm="RSA/ECB/PKCS1Padding";//RSA、RSA/ECB/PKCS1Padding
@@ -59,7 +59,7 @@ public class RSAUtil {
   public KeyPair generateKeyPair(int keySize) {
     KeyPair keyPair = null;
     try {
-      KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(ALGORITHM);
+      KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance(RSA);
       // 密钥位数
       keyPairGen.initialize(keySize);
       // 密钥对
@@ -86,7 +86,7 @@ public class RSAUtil {
   public int getKeySize(PrivateKey key) {
     String algorithm = key.getAlgorithm(); // 获取算法
     BigInteger prime = null;
-    if (ALGORITHM.equals(algorithm)) { // 如果是RSA加密
+    if (RSA.equals(algorithm)) { // 如果是RSA加密
       RSAPrivateKey keySpec = (RSAPrivateKey) key;
       prime = keySpec.getModulus();
     }
@@ -96,7 +96,7 @@ public class RSAUtil {
   public int getKeySize(PublicKey key) {
     String algorithm = key.getAlgorithm(); // 获取算法
     BigInteger prime = null;
-    if (ALGORITHM.equals(algorithm)) { // 如果是RSA加密
+    if (RSA.equals(algorithm)) { // 如果是RSA加密
       RSAPublicKey keySpec = (RSAPublicKey) key;
       prime = keySpec.getModulus();
     }
@@ -109,7 +109,7 @@ public class RSAUtil {
     keyBytes = BaseEncoding.base64().decode(key);
 
     X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
-    KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
+    KeyFactory keyFactory = KeyFactory.getInstance(RSA);
     return keyFactory.generatePublic(keySpec);
   }
 
@@ -132,7 +132,7 @@ public class RSAUtil {
     keyBytes = BaseEncoding.base64().decode(key);
 
     PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
-    KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
+    KeyFactory keyFactory = KeyFactory.getInstance(RSA);
     return keyFactory.generatePrivate(keySpec);
   }
 
@@ -183,30 +183,6 @@ public class RSAUtil {
   public String decryptByPrivateKey(String key, String data) throws Exception {
     PrivateKey privateKey = getPrivateKey(key);
     return decode(privateKey, data);
-  }
-
-  /**
-   * 私钥加密
-   *
-   * @param key 密钥
-   * @param data 待加密数据
-   * @return byte[] 加密数据
-   */
-  public String encryptByPrivateKey(String key, String data) throws Exception {
-    PrivateKey privateKey = getPrivateKey(key);
-    return encode(privateKey, data);
-  }
-
-  /**
-   * 公钥解密
-   *
-   * @param key 密钥
-   * @param data 待加密数据
-   * @return byte[] 加密数据
-   */
-  public String decryptByPublicKey(String key, String data) throws Exception {
-    PublicKey publicKey = getPublicKey(key);
-    return decode(publicKey, data);
   }
 
   public String encode(Key key, String content) throws NoSuchPaddingException, IOException {
@@ -274,16 +250,110 @@ public class RSAUtil {
     }
   }
 
+  /**
+   * MD5withRSA签名
+   *
+   * @param data 待签名数据
+   * @param privateKeyStr 私钥
+   * @return 签名(base64的字符串)
+   */
+  public String signMD5withRSA(String data, String privateKeyStr) {
+    try {
+      PrivateKey privateKey = getPrivateKey(privateKeyStr);
+      Signature signature = Signature.getInstance(MD5_WITH_RSA);
+      signature.initSign(privateKey);
+      signature.update(data.getBytes());
+      return new String(Base64.encode(signature.sign()));
+    }catch (Exception e) {
+      LOG.warn("", e);
+    }
+    return null;
+  }
+
+  /**
+   * MD5withRSA数字签名验证.
+   *
+   * @param srcData 原始字符串
+   * @param publicKeyStr 公钥
+   * @param sign 签名(base64的字符串)
+   * @return 是否验签通过
+   */
+  public boolean verifyMD5withRSA(String srcData, String publicKeyStr, String sign){
+    try {
+      PublicKey publicKey = getPublicKey(publicKeyStr);
+      Signature signature = Signature.getInstance(MD5_WITH_RSA);
+      signature.initVerify(publicKey);
+      signature.update(srcData.getBytes());
+      return signature.verify(Base64.decode(sign.getBytes()));
+    }catch (Exception e) {
+      LOG.warn("", e);
+      return false;
+    }
+  }
+
+
+  /**
+   * SHA256withRSA签名
+   *
+   * @param privateKeyStr
+   *            私钥
+   * @param plain_text
+   *            明文
+   * @return 签名(base64的字符串)
+   */
+  public String signSha256withRSA(String plain_text,String privateKeyStr) {
+    try {
+      Signature Sign = Signature.getInstance(SHA256_WITH_RSA);
+      PrivateKey privateKey = getPrivateKey(privateKeyStr);
+      Sign.initSign(privateKey);
+      Sign.update(plain_text.getBytes());
+      byte[] signed = Sign.sign();
+      return Base64.encodeString(signed) ;
+    } catch (Exception e) {
+      LOG.warn("", e);
+    }
+    return null;
+  }
+
+
+  /**
+   * SHA256withRSA数字签名验证.
+   *
+   * @param data   数据
+   * @param publicKeyStr    公钥
+   * @param sign   签名(base64的字符串)
+   * @return true, if successful
+   */
+  public boolean verifySHA256WithRSA(String data, String publicKeyStr, String sign)
+      throws Exception {
+    try {
+      PublicKey publicKey = getPublicKey(publicKeyStr);
+      //公钥解签
+      Signature sig = Signature.getInstance(SHA256_WITH_RSA);
+      sig.initVerify(publicKey);
+      sig.update(data.getBytes());
+      return sig.verify(Base64.decodeString(sign));
+    } catch (Exception e) {
+      LOG.warn("", e);
+      return false;
+    }
+  }
+
+
   public static void main(String[] args) throws Exception {
     String password = "admin";
     RSAUtil rsa = RSAUtil.create();
     KeyPair keyPair = rsa.generateKeyPair();
-    String gong = rsa.getPublicKeyWithBase64(keyPair);
-    String si = rsa.getPrivateKeyWithBase64(keyPair);
-    String jiami = rsa.encryptByPublicKey(gong, password);
-    String jiemi = rsa.decryptByPrivateKey(si, jiami);
+    String pubkey = rsa.getPublicKeyWithBase64(keyPair);
+    String priKey = rsa.getPrivateKeyWithBase64(keyPair);
+    String jiami = rsa.encryptByPublicKey(pubkey, password);
+    String jiemi = rsa.decryptByPrivateKey(priKey, jiami);
     System.out.println(jiami);
     System.out.println(jiemi);
+    String sign = rsa.signSha256withRSA(password, priKey);
+    System.out.println("sign = " + sign);
+    boolean verify = rsa.verifySHA256WithRSA(password, pubkey, sign);
+    System.out.println("verify = " + verify);
 
     /*
     RSAUtil rsa = RSAUtil.create();
