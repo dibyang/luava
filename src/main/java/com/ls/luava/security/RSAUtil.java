@@ -339,7 +339,7 @@ public class RSAUtil {
    * @param sign 签名(base64的字符串)
    * @return true, if successful
    */
-  private boolean verify(String algorithm, String publicKeyStr, String data, String sign) {
+  public boolean verify(String algorithm, String publicKeyStr, String data, String sign) {
     try {
       PublicKey publicKey = getPublicKey(publicKeyStr);
       //公钥解签
