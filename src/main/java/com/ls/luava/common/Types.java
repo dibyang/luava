@@ -1,9 +1,7 @@
 package com.ls.luava.common;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.io.BaseEncoding;
-import com.ls.luava.security.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -691,7 +689,7 @@ public abstract class Types {
       }
       if(clazz.getComponentType().equals(byte.class)){
         if(obj instanceof String){
-          return (T)Base64.decodeString((String)obj);
+          return (T)BaseEncoding.base64().decode((String)obj);
         }
       }
     }

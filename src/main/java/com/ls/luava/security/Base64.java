@@ -1,10 +1,14 @@
 package com.ls.luava.security;
 
+
 import java.io.*;
 
 /**
  * @since 0.2.0
+ * @deprecated
+ * @see com.google.common.io.BaseEncoding
  */
+@Deprecated
 public class Base64 {
 
   public static String encodeString(byte[] bytes) throws RuntimeException {
