@@ -11,6 +11,8 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Json 工具类
@@ -20,6 +22,7 @@ import java.util.*;
 public enum Jsons {
   i;
   final Gson gson;
+  private final DynamicExclusionStrategy dynamicExclusionStrategy = new DynamicExclusionStrategy();
 
   Jsons() {
     GsonBuilder builder = new GsonBuilder();
@@ -29,6 +32,7 @@ public enum Jsons {
         .setObjectToNumberStrategy(ToNumberPolicy.BIG_DECIMAL)
         //.setDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
         //.registerTypeAdapter(N3Map.class,new N3MapDeserializer())
+        .setExclusionStrategies(dynamicExclusionStrategy)
         .setPrettyPrinting();
     ServiceLoader<GsonSpi> serviceLoader = ServiceLoader.load(GsonSpi.class);
     Iterator<GsonSpi> sels = serviceLoader.iterator();
@@ -46,36 +50,117 @@ public enum Jsons {
     return gson.toJson(src);
   }
 
+  public String toJson(Object src, ExclusionStrategy exclusionStrategy) {
+    try {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+      return toJson(src);
+    }finally {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+    }
+  }
+
   public void toJson(Object src, Appendable writer) {
     gson.toJson(src, writer);
+  }
+
+  public void toJson(Object src, Appendable writer, ExclusionStrategy exclusionStrategy) {
+    try {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+      toJson(src, writer);
+    }finally {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+    }
   }
 
   public void toJson(Object src, Type typeOfSrc, Appendable writer) {
     gson.toJson(src, typeOfSrc, writer);
   }
 
+  public void toJson(Object src, Type typeOfSrc, Appendable writer, ExclusionStrategy exclusionStrategy) {
+    try {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+      toJson(src, typeOfSrc, writer);
+    }finally {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+    }
+  }
+
   public <T> T fromJson(String json, Class<T> classOfT) {
     return gson.fromJson(json, classOfT);
+  }
+
+  public <T> T fromJson(String json, Class<T> classOfT, ExclusionStrategy exclusionStrategy) {
+    try {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+      return fromJson(json, classOfT);
+    }finally {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+    }
   }
 
   public <T> T fromJson(String json, Type typeOfT) {
     return gson.fromJson(json, typeOfT);
   }
 
+  public <T> T fromJson(String json, Type typeOfT, ExclusionStrategy exclusionStrategy) {
+    try {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+      return fromJson(json, typeOfT);
+    }finally {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+    }
+  }
+
   public <T> T fromJson(Reader reader, Type typeOfT) {
     return gson.fromJson(reader, typeOfT);
+  }
+
+  public <T> T fromJson(Reader reader, Type typeOfT, ExclusionStrategy exclusionStrategy) {
+    try {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+      return fromJson(reader, typeOfT);
+    }finally {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+    }
   }
 
   public <T> T fromJson(Reader reader, Class<T> classOfT) {
     return gson.fromJson(reader, classOfT);
   }
 
+  public <T> T fromJson(Reader reader, Class<T> classOfT, ExclusionStrategy exclusionStrategy) {
+    try {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+      return fromJson(reader, classOfT);
+    }finally {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+    }
+  }
+
   public <T> T fromJson(JsonElement reader, Type typeOfT) {
     return gson.fromJson(reader, typeOfT);
   }
 
+  public <T> T fromJson(JsonElement reader, Type typeOfT, ExclusionStrategy exclusionStrategy) {
+    try {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+      return fromJson(reader, typeOfT);
+    }finally {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+    }
+  }
+
   public <T> T fromJson(JsonElement reader, Class<T> classOfT) {
     return gson.fromJson(reader, classOfT);
+  }
+
+  public <T> T fromJson(JsonElement reader, Class<T> classOfT, ExclusionStrategy exclusionStrategy) {
+    try {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+      return fromJson(reader, classOfT);
+    }finally {
+      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+    }
   }
 
   public static void main(String[] args) {
