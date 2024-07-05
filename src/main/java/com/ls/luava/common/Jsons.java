@@ -55,7 +55,17 @@ public enum Jsons {
       dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
       return toJson(src);
     }finally {
+      dynamicExclusionStrategy.setExclusionStrategy(null);
+    }
+  }
+
+
+  void doAction(ExclusionStrategy exclusionStrategy, Runnable runnable){
+    try {
       dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+      runnable.run();
+    }finally {
+      dynamicExclusionStrategy.setExclusionStrategy(null);
     }
   }
 
@@ -64,12 +74,7 @@ public enum Jsons {
   }
 
   public void toJson(Object src, Appendable writer, ExclusionStrategy exclusionStrategy) {
-    try {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-      toJson(src, writer);
-    }finally {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-    }
+    doAction(exclusionStrategy, ()->toJson(src, writer));
   }
 
   public void toJson(Object src, Type typeOfSrc, Appendable writer) {
@@ -77,25 +82,24 @@ public enum Jsons {
   }
 
   public void toJson(Object src, Type typeOfSrc, Appendable writer, ExclusionStrategy exclusionStrategy) {
-    try {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-      toJson(src, typeOfSrc, writer);
-    }finally {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-    }
+    doAction(exclusionStrategy, ()->toJson(src, typeOfSrc, writer));
   }
 
   public <T> T fromJson(String json, Class<T> classOfT) {
     return gson.fromJson(json, classOfT);
   }
 
-  public <T> T fromJson(String json, Class<T> classOfT, ExclusionStrategy exclusionStrategy) {
+  <T> T doAction(ExclusionStrategy exclusionStrategy, Supplier<T> supplier){
     try {
       dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-      return fromJson(json, classOfT);
+      return supplier.get();
     }finally {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
+      dynamicExclusionStrategy.setExclusionStrategy(null);
     }
+  }
+
+  public <T> T fromJson(String json, Class<T> classOfT, ExclusionStrategy exclusionStrategy) {
+    return doAction(exclusionStrategy, ()->fromJson(json, classOfT));
   }
 
   public <T> T fromJson(String json, Type typeOfT) {
@@ -103,12 +107,7 @@ public enum Jsons {
   }
 
   public <T> T fromJson(String json, Type typeOfT, ExclusionStrategy exclusionStrategy) {
-    try {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-      return fromJson(json, typeOfT);
-    }finally {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-    }
+    return doAction(exclusionStrategy, ()->fromJson(json, typeOfT));
   }
 
   public <T> T fromJson(Reader reader, Type typeOfT) {
@@ -116,12 +115,7 @@ public enum Jsons {
   }
 
   public <T> T fromJson(Reader reader, Type typeOfT, ExclusionStrategy exclusionStrategy) {
-    try {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-      return fromJson(reader, typeOfT);
-    }finally {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-    }
+    return doAction(exclusionStrategy, ()->fromJson(reader, typeOfT));
   }
 
   public <T> T fromJson(Reader reader, Class<T> classOfT) {
@@ -129,12 +123,7 @@ public enum Jsons {
   }
 
   public <T> T fromJson(Reader reader, Class<T> classOfT, ExclusionStrategy exclusionStrategy) {
-    try {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-      return fromJson(reader, classOfT);
-    }finally {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-    }
+    return doAction(exclusionStrategy, ()->fromJson(reader, classOfT));
   }
 
   public <T> T fromJson(JsonElement reader, Type typeOfT) {
@@ -142,12 +131,7 @@ public enum Jsons {
   }
 
   public <T> T fromJson(JsonElement reader, Type typeOfT, ExclusionStrategy exclusionStrategy) {
-    try {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-      return fromJson(reader, typeOfT);
-    }finally {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-    }
+    return doAction(exclusionStrategy, ()->fromJson(reader, typeOfT));
   }
 
   public <T> T fromJson(JsonElement reader, Class<T> classOfT) {
@@ -155,12 +139,7 @@ public enum Jsons {
   }
 
   public <T> T fromJson(JsonElement reader, Class<T> classOfT, ExclusionStrategy exclusionStrategy) {
-    try {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-      return fromJson(reader, classOfT);
-    }finally {
-      dynamicExclusionStrategy.setExclusionStrategy(exclusionStrategy);
-    }
+    return doAction(exclusionStrategy, ()->fromJson(reader, classOfT));
   }
 
   public static void main(String[] args) {
