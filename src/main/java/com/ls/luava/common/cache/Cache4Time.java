@@ -82,7 +82,7 @@ public class Cache4Time<T> {
   public synchronized T getData(){
     CompletableFuture<T> future = this.supplier.get();
     try {
-      future.get();
+      this.data = future.get();
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     } catch (ExecutionException e) {
