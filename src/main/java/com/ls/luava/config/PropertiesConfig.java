@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author yangzj
@@ -60,6 +61,10 @@ public class PropertiesConfig {
     } catch (IOException e) {
       LOG.error(null, e);
     }
+  }
+
+  public Set<String> getPropertyNames(){
+    return properties.stringPropertyNames();
   }
 
   public void clear() {

@@ -1,10 +1,12 @@
 package com.ls.luava.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 /**
  * 改进java.util.Properties文件读写类,在读取properties文件的时候把注释和顺序格式都记录下来,操作时候也把添加顺序记录了，
@@ -14,7 +16,7 @@ import java.util.Properties;
  */
 @SuppressWarnings("all")
 public class SafeProperties extends Properties {
-
+  static final Logger LOG = LoggerFactory.getLogger(SafeProperties.class);
   private static final long serialVersionUID = 5011694856722313621L;
 
   private static final String keyValueSeparators = "=: \t\r\n\f";
@@ -25,10 +27,64 @@ public class SafeProperties extends Properties {
 
   private static final String whiteSpaceChars = " \t\r\n\f";
 
+  private long lastModified = 0;
+  private volatile File configFile = null;
+
   private PropertiesContext context = new PropertiesContext();
 
   public PropertiesContext getContext() {
     return context;
+  }
+
+  private final ConcurrentHashMap<String, Consumer<SafeProperties>> listeners = new ConcurrentHashMap<>();
+
+  public void addListener(String name, Consumer<SafeProperties> listener){
+    listeners.put(name, listener);
+  }
+
+  public Consumer<SafeProperties> removeListener(String name){
+    return listeners.remove(name);
+  }
+
+  public void clearListener(){
+    listeners.clear();
+  }
+
+  public void bindConfig(File file){
+    if(file!=null){
+      configFile = file;
+      lastModified = 0;
+      try {
+        realodConfig();
+      } catch (IOException e) {
+        LOG.warn("reload config failed.", e);
+      }
+    }else {
+      configFile = null;
+      lastModified = 0;
+    }
+  }
+
+  public long getLastModified() {
+    return lastModified;
+  }
+
+
+  public synchronized void realodConfig() throws IOException {
+    if(configFile!=null&&lastModified!=configFile.lastModified()){
+      lastModified = configFile.lastModified();
+      load(configFile);
+      for (Consumer listener : listeners.values()) {
+        listener.accept(this);
+      }
+    }
+  }
+
+  public synchronized void storeConfig() throws IOException {
+    if(configFile!=null){
+      store(configFile,"");
+      lastModified = configFile.lastModified();
+    }
   }
 
   public synchronized void load(File file) throws IOException {
