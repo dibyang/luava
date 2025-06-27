@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -26,6 +27,8 @@ public class SafeProperties extends Properties {
   private static final String specialSaveChars = "=: \t\r\n\f#!";
 
   private static final String whiteSpaceChars = " \t\r\n\f";
+
+  public static final String HEADER_PREFIX = "## ";
 
   private long lastModified = 0;
   private volatile File configFile = null;
@@ -73,6 +76,7 @@ public class SafeProperties extends Properties {
   public synchronized void realodConfig() throws IOException {
     if(configFile!=null&&lastModified!=configFile.lastModified()){
       lastModified = configFile.lastModified();
+      this.clear();
       load(configFile);
       for (Consumer listener : listeners.values()) {
         listener.accept(this);
@@ -80,9 +84,15 @@ public class SafeProperties extends Properties {
     }
   }
 
+  @Override
+  public synchronized void clear() {
+    super.clear();
+    this.context.commentOrEntrys.clear();
+  }
+
   public synchronized void storeConfig() throws IOException {
     if(configFile!=null){
-      store(configFile,"");
+      store(configFile,"updaet config "+ LocalDateTime.now());
       lastModified = configFile.lastModified();
     }
   }
@@ -295,8 +305,9 @@ public class SafeProperties extends Properties {
   public synchronized void store(Writer writer, String comments) throws IOException {
     BufferedWriter awriter;
     awriter = new BufferedWriter(writer);
-    if (comments != null)
-      writeln(awriter, "#" + comments);
+    if (comments != null) {
+      context.putOrUpdateHeader(comments);
+    }
     List entrys = context.getCommentOrEntrys();
     for (Iterator iter = entrys.iterator(); iter.hasNext();) {
       Object obj = iter.next();
@@ -405,10 +416,49 @@ public class SafeProperties extends Properties {
   }
 
   class PropertiesContext {
+
     private List commentOrEntrys = new ArrayList();
 
     public List getCommentOrEntrys() {
       return commentOrEntrys;
+    }
+
+    public void putOrUpdateHeader(String header) {
+      removeHeader();
+      commentOrEntrys.add(0, HEADER_PREFIX + header);
+    }
+
+
+    public String getHeader(){
+      String header = null;
+      if(!commentOrEntrys.isEmpty()){
+        Object o = commentOrEntrys.get(0);
+        if(o instanceof String && o.toString().startsWith(HEADER_PREFIX)){
+          header = (String) o;
+        }
+      }
+      return header;
+    }
+
+    public String removeHeader(){
+      String header = getHeader();
+      if(header!=null) {
+        commentOrEntrys.remove(header);
+      }
+      return header;
+    }
+
+    public int removeCommentLine(String line) {
+      for (int index = 0; index < commentOrEntrys.size(); index++) {
+        Object obj = commentOrEntrys.get(index);
+        if (obj instanceof String) {
+          if (line.equals(obj)) {
+            commentOrEntrys.remove(obj);
+            return index;
+          }
+        }
+      }
+      return commentOrEntrys.size();
     }
 
     public void addCommentLine(String line) {
@@ -436,11 +486,9 @@ public class SafeProperties extends Properties {
       for (int index = 0; index < commentOrEntrys.size(); index++) {
         Object obj = commentOrEntrys.get(index);
         if (obj instanceof PropertyEntry) {
-          if (obj != null) {
-            if (key.equals(((PropertyEntry) obj).getKey())) {
-              commentOrEntrys.remove(obj);
-              return index;
-            }
+          if (key.equals(((PropertyEntry) obj).getKey())) {
+            commentOrEntrys.remove(obj);
+            return index;
           }
         }
       }
